@@ -25,9 +25,11 @@ const base = import.meta.env.BASE_URL;
 const fallbackLabel = (heading: string) => heading.replace(/^[^\p{L}\d]+/u, "").trim();
 
 const matchCommentary = (heading: string) => commentaries.find((c) => heading.includes(c.label));
+
+const description = `${title.iast}${title.english ? ` — ${title.english}` : ""}, from ${work.iast} by ${author}, with commentaries by ${commentaries.map((c) => c.labelIast).join(", ")}.`;
 ---
 
-<Layout title={title.devanagari} description={`${work.devanagari} — ${title.iast}`}>
+<Layout title={title.devanagari} description={description}>
 	<div class="container grantha-page">
 		<p class="grantha-breadcrumb">
 			<a href={`${base}granthas/`}>ग्रन्थाः</a> / <a href={`${base}granthas/${entry.data.workSlug}/`}>{work.devanagari}</a>
@@ -53,7 +55,14 @@ const matchCommentary = (heading: string) => commentaries.find((c) => heading.in
 			parsed.sections.map((section, si) => (
 				<section class="verse" id={`section-${si}`}>
 					<h2 class="verse-heading">{section.heading}</h2>
-					{section.introHtml && <div class="verse-text" set:html={section.introHtml} />}
+					{
+						section.introHtml && (
+							<div
+								class={`verse-text${section.subsections.length > 0 ? " has-commentary" : ""}`}
+								set:html={section.introHtml}
+							/>
+						)
+					}
 
 					{section.subsections.length > 0 && (
 						<div class="commentary-block">

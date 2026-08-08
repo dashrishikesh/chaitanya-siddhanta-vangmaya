@@ -23,9 +23,10 @@ const { sections } = Astro.props;
 const { workSlug } = Astro.params;
 const { work, corpusName, author } = sections[0].data;
 const base = import.meta.env.BASE_URL;
+const description = `${work.iast} (${work.devanagari})${work.english ? `, "${work.english}"` : ""} by ${author} — ${sections.length} section${sections.length === 1 ? "" : "s"} with historical commentaries.`;
 ---
 
-<Layout title={work.devanagari} description={`${work.devanagari} — ${work.iast}`}>
+<Layout title={work.devanagari} description={description}>
 	<div class="container grantha-page">
 		<p class="grantha-breadcrumb"><a href={`${base}granthas/`}>ग्रन्थाः</a> / {work.devanagari}</p>
 

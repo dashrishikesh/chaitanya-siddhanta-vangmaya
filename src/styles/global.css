@@ -7,6 +7,30 @@
      category groups
 --------------------------------------------------------------------- */
 
+@font-face {
+	font-family: "Adishila";
+	src: url("/fonts/Adishila.ttf") format("truetype");
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Adishila";
+	src: url("/fonts/AdishilaBold.ttf") format("truetype");
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "AdishilaDev";
+	src: url("/fonts/AdishilaDev.ttf") format("truetype");
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
 :root {
 	--color-text: #666666;
 	--color-heading: #333333;
@@ -15,13 +39,18 @@
 	--color-border: #cccccc;
 	--color-title-bg: #9e1717;
 
+	/* verse-heading / commentary-byline accents, matching the bhāṣya
+	   reading-page palette of the reference archive */
+	--color-heading-accent: #e65100;
+	--color-vyakhya: #3f51b5;
+
 	--color-cat-1: #f44336; /* red */
 	--color-cat-2: #0277bd; /* indigo */
 	--color-cat-3: #80cbc4; /* green */
 	--color-cat-4: #a1887f; /* brown */
 
-	--font-body: "Open Sans", Helvetica, Arial, sans-serif;
-	--font-display: "Noto Serif Devanagari", "Open Sans", Helvetica, Arial, sans-serif;
+	--font-body: "Adishila", "Noto Serif Devanagari", "Open Sans", Helvetica, Arial, sans-serif;
+	--font-display: "Adishila", "Noto Serif Devanagari", "Open Sans", Helvetica, Arial, sans-serif;
 }
 
 * {
@@ -611,9 +640,11 @@ a:hover {
 .verse-heading {
 	font-family: var(--font-display);
 	text-align: center;
-	color: var(--color-link);
-	font-size: 1.3rem;
+	color: var(--color-heading-accent);
+	font-size: 20px;
 	margin-bottom: 20px;
+	padding-bottom: 10px;
+	border-bottom: 2px solid var(--color-heading-accent);
 }
 
 .verse-text {
@@ -621,6 +652,11 @@ a:hover {
 	text-align: center;
 	line-height: 1.9em;
 	margin-bottom: 25px;
+}
+
+.verse-text.has-commentary {
+	padding: 20px 30px;
+	background: #f7f0e0;
 }
 
 .grantha-opening blockquote,
@@ -680,7 +716,8 @@ a:hover {
 .commentator-byline {
 	font-family: var(--font-display);
 	font-weight: 600;
-	color: var(--color-heading);
+	font-style: italic;
+	color: var(--color-vyakhya);
 }
 
 .commentator-note {

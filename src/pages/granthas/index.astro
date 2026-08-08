@@ -10,34 +10,52 @@ interface Book {
 
 interface Group {
 	heading: string;
-	cat: 1;
+	cat: number;
 	books: Book[];
 }
 
+// category id -> [display heading, grid color class]; order here is display order
+const CATEGORIES: Record<string, [string, number]> = {
+	sandarbha: ["षट्सन्दर्भाः", 1],
+	stotra: ["स्तोत्र-ग्रन्थाः", 2],
+};
+const CATEGORY_ORDER = Object.keys(CATEGORIES);
+
 const base = import.meta.env.BASE_URL;
 const granthaEntries = await getCollection("granthas");
-const tattvaSandarbha = granthaEntries.find((e) => e.data.workSlug === "tattva-sandarbha");
 
-const groups: Group[] = tattvaSandarbha
-	? [
-			{
-				heading: "षट्सन्दर्भाः",
-				cat: 1,
-				books: [
-					{
-						name: tattvaSandarbha.data.work.devanagari,
-						author: tattvaSandarbha.data.author,
-						href: `${base}granthas/${tattvaSandarbha.data.workSlug}/`,
-					},
-				],
-			},
-		]
-	: [];
+const workByCategory = new Map<string, typeof granthaEntries>();
+const seenWorkSlugs = new Set<string>();
+for (const entry of granthaEntries) {
+	if (seenWorkSlugs.has(entry.data.workSlug)) continue;
+	seenWorkSlugs.add(entry.data.workSlug);
+	const list = workByCategory.get(entry.data.category) ?? [];
+	list.push(entry);
+	workByCategory.set(entry.data.category, list);
+}
+
+const groups: Group[] = [...workByCategory.entries()]
+	.sort(([a], [b]) => CATEGORY_ORDER.indexOf(a) - CATEGORY_ORDER.indexOf(b))
+	.map(([category, works]) => {
+		const [heading, cat] = CATEGORIES[category] ?? [category, 1];
+		return {
+			heading,
+			cat,
+			books: works.map((entry) => ({
+				name: entry.data.work.devanagari,
+				author: entry.data.author,
+				href: `${base}granthas/${entry.data.workSlug}/`,
+			})),
+		};
+	});
 
 const catClass = (cat: number) => `cat-${cat}`;
 ---
 
-<Layout title="ग्रन्थाः">
+<Layout
+	title="ग्रन्थाः"
+	description="Browse the Ṣaṭ-Sandarbha (six Sandarbhas) of Śrī Jīva Gosvāmī — the foundational philosophical treatises of Gauḍīya Vaiṣṇava theology, presented with their historical commentaries."
+>
 	<div class="container works">
 		<h2 class="works-heading">चैतन्यसिद्धान्तवाङ्मयम्</h2>
 
