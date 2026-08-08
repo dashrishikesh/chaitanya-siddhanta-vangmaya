@@ -190,14 +190,56 @@ a:hover {
 .hero {
 	text-align: center;
 	padding: 70px 20px;
-	background: #f4f4f4;
+	background: #f7f0e0;
+}
+
+.hero-inner {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 50px;
+	max-width: 900px;
+	margin: 0 auto;
+}
+
+.hero-banner-image {
+	width: 220px;
+	height: 220px;
+	object-fit: cover;
+	border-radius: 50%;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+	flex-shrink: 0;
+}
+
+.hero-content {
+	text-align: left;
 }
 
 .hero-logo {
-	width: 160px;
+	width: 100px;
 	height: auto;
-	margin: 0 auto 25px;
+	margin: 0 0 20px;
 	display: block;
+}
+
+@media (max-width: 640px) {
+	.hero-inner {
+		flex-direction: column;
+		gap: 25px;
+	}
+
+	.hero-content {
+		text-align: center;
+	}
+
+	.hero-logo {
+		margin: 0 auto 20px;
+	}
+
+	.hero-banner-image {
+		width: 160px;
+		height: 160px;
+	}
 }
 
 .hero .title {
@@ -230,6 +272,35 @@ a:hover {
 	padding: 50px 20px;
 	max-width: 800px;
 	margin: 0 auto;
+}
+
+.sanskrit-quote {
+	margin: 0 0 1.5em;
+	padding: 0;
+	border: none;
+}
+
+.sanskrit-quote p {
+	font-family: var(--font-display);
+	font-size: 1.35rem;
+	color: var(--color-heading);
+	margin: 0 0 0.4em;
+}
+
+.sanskrit-quote .quote-translation {
+	font-family: var(--font-body);
+	font-size: 1rem;
+	font-style: italic;
+	color: var(--color-text);
+	margin: 0 0 0.8em;
+}
+
+.sanskrit-quote cite {
+	display: block;
+	font-family: var(--font-body);
+	font-style: normal;
+	font-size: 0.8rem;
+	color: #999999;
 }
 
 .placeholder-note {
@@ -453,6 +524,222 @@ a:hover {
 	font-family: var(--font-display);
 	color: var(--color-link);
 	margin-bottom: 8px;
+}
+
+.article-body h1 {
+	font-family: var(--font-display);
+	text-align: center;
+	color: var(--color-title-bg);
+	margin-bottom: 10px;
+}
+
+.article-source {
+	text-align: center;
+	font-size: 0.8rem;
+	color: #999999;
+	margin-bottom: 40px;
+}
+
+.article-body h2 {
+	font-family: var(--font-body);
+	text-align: left;
+	font-size: 1rem;
+	font-weight: 600;
+	letter-spacing: 0.03em;
+	color: var(--color-link);
+	margin: 2em 0 0.8em;
+}
+
+.article-body p,
+.article-body li {
+	margin: 0 0 1.2em;
+}
+
+.article-body ol {
+	padding-left: 1.4em;
+}
+
+/* -----------------------------------------------------------------
+   Grantha reading page (ग्रन्थाः / [id])
+----------------------------------------------------------------- */
+
+.grantha-page {
+	max-width: 820px;
+	padding-top: 30px;
+	padding-bottom: 60px;
+}
+
+.grantha-breadcrumb {
+	font-size: 0.85rem;
+	color: #999999;
+	margin-bottom: 30px;
+}
+
+.grantha-header {
+	text-align: center;
+	padding-bottom: 30px;
+	margin-bottom: 30px;
+	border-bottom: 1px solid var(--color-border);
+}
+
+.grantha-title {
+	font-family: var(--font-display);
+	font-size: 2.25rem;
+	color: var(--color-title-bg);
+	margin-bottom: 0.2em;
+}
+
+.grantha-title-iast {
+	font-style: italic;
+	color: #999999;
+	margin-bottom: 1em;
+}
+
+.grantha-work,
+.grantha-corpus {
+	font-family: var(--font-display);
+	font-size: 1.1rem;
+	margin-bottom: 0.4em;
+}
+
+.grantha-work-iast {
+	font-family: var(--font-body);
+	font-style: italic;
+	color: #999999;
+	font-size: 0.85em;
+}
+
+.grantha-author {
+	font-size: 0.9rem;
+	color: #888888;
+}
+
+.work-sections {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.work-sections li + li {
+	margin-top: 10px;
+}
+
+.work-sections a {
+	display: flex;
+	align-items: baseline;
+	gap: 12px;
+	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.25);
+	border-left: 5px solid var(--color-cat-1);
+	padding: 16px 18px;
+	color: #555555;
+}
+
+.work-sections a:hover {
+	box-shadow: 2px 2px 7px rgba(0, 0, 0, 0.2);
+}
+
+.work-sections .name {
+	font-family: var(--font-display);
+	font-size: 1.1rem;
+	color: #333333;
+}
+
+.work-sections .author {
+	font-size: 0.85em;
+	font-style: italic;
+	color: #999999;
+}
+
+.grantha-opening {
+	font-family: var(--font-display);
+	text-align: center;
+	line-height: 1.9em;
+	margin-bottom: 40px;
+}
+
+.verse {
+	margin-bottom: 50px;
+}
+
+.verse-heading {
+	font-family: var(--font-display);
+	text-align: center;
+	color: var(--color-link);
+	font-size: 1.3rem;
+	margin-bottom: 20px;
+}
+
+.verse-text {
+	font-family: var(--font-display);
+	text-align: center;
+	line-height: 1.9em;
+	margin-bottom: 25px;
+}
+
+.grantha-opening blockquote,
+.verse-text blockquote {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 600;
+}
+
+.commentary-block blockquote {
+	margin: 1em 0;
+	padding: 10px 18px;
+	border-left: 3px solid var(--color-border);
+	color: #888888;
+	font-style: italic;
+}
+
+.commentary-block p {
+	line-height: 1.9em;
+	margin: 0 0 1em;
+}
+
+.commentary-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 8px;
+	margin-bottom: 20px;
+}
+
+.commentary-tab {
+	font-family: var(--font-display);
+	font-size: 0.9rem;
+	background: #ffffff;
+	border: 1px solid var(--color-border);
+	border-radius: 4px;
+	padding: 8px 16px;
+	cursor: pointer;
+	color: #555555;
+}
+
+.commentary-tab.active {
+	background: var(--color-link);
+	border-color: var(--color-link);
+	color: #ffffff;
+}
+
+.commentary-panel {
+	display: none;
+}
+
+.commentary-panel.active {
+	display: block;
+}
+
+.commentator-byline {
+	font-family: var(--font-display);
+	font-weight: 600;
+	color: var(--color-heading);
+}
+
+.commentator-note {
+	font-size: 0.85rem;
+	font-style: italic;
+	color: #999999;
 }
 
 /* -----------------------------------------------------------------

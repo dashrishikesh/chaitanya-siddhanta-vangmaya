@@ -1,0 +1,105 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import Layout from "../../../layouts/Layout.astro";
+import { parseGranthaBody } from "../../../lib/grantha";
+
+export async function getStaticPaths() {
+	const entries = await getCollection("granthas");
+	return entries.map((entry) => ({
+		params: { workSlug: entry.data.workSlug, id: entry.id },
+		props: { entry },
+	}));
+}
+
+interface Props {
+	entry: CollectionEntry<"granthas">;
+}
+
+const { entry } = Astro.props;
+const { title, work, corpusName, author, commentaries } = entry.data;
+const parsed = parseGranthaBody(entry.body ?? "");
+const base = import.meta.env.BASE_URL;
+
+// Strip a leading commentary-marker emoji so a heading without frontmatter
+// metadata still reads cleanly as a fallback tab label.
+const fallbackLabel = (heading: string) => heading.replace(/^[^\p{L}\d]+/u, "").trim();
+
+const matchCommentary = (heading: string) => commentaries.find((c) => heading.includes(c.label));
+---
+
+<Layout title={title.devanagari} description={`${work.devanagari} — ${title.iast}`}>
+	<div class="container grantha-page">
+		<p class="grantha-breadcrumb">
+			<a href={`${base}granthas/`}>ग्रन्थाः</a> / <a href={`${base}granthas/${entry.data.workSlug}/`}>{work.devanagari}</a>
+		</p>
+
+		<header class="grantha-header">
+			<h1 class="grantha-title">{title.devanagari}</h1>
+			<p class="grantha-title-iast">{title.iast}</p>
+			<p class="grantha-work">{work.devanagari} <span class="grantha-work-iast">({work.iast})</span></p>
+			{
+				corpusName && (
+					<p class="grantha-corpus">
+						{corpusName.devanagari} <span class="grantha-work-iast">({corpusName.iast})</span>
+					</p>
+				)
+			}
+			<p class="grantha-author">कर्ता: {author}</p>
+		</header>
+
+		{parsed.openingHtml && <div class="grantha-opening" set:html={parsed.openingHtml} />}
+
+		{
+			parsed.sections.map((section, si) => (
+				<section class="verse" id={`section-${si}`}>
+					<h2 class="verse-heading">{section.heading}</h2>
+					{section.introHtml && <div class="verse-text" set:html={section.introHtml} />}
+
+					{section.subsections.length > 0 && (
+						<div class="commentary-block">
+							<div class="commentary-tabs" role="tablist">
+								{section.subsections.map((sub, ci) => {
+									const meta = matchCommentary(sub.heading);
+									return (
+										<button
+											type="button"
+											class={`commentary-tab${ci === 0 ? " active" : ""}`}
+											data-target={`v${si}-c${ci}`}
+										>
+											{meta?.label ?? fallbackLabel(sub.heading)}
+										</button>
+									);
+								})}
+							</div>
+							{section.subsections.map((sub, ci) => {
+								const meta = matchCommentary(sub.heading);
+								return (
+									<div class={`commentary-panel${ci === 0 ? " active" : ""}`} id={`v${si}-c${ci}`}>
+										{meta?.commentator && <p class="commentator-byline">{meta.commentator}</p>}
+										{meta?.note && <p class="commentator-note">{meta.note}</p>}
+										<div set:html={sub.html} />
+									</div>
+								);
+							})}
+						</div>
+					)}
+				</section>
+			))
+		}
+	</div>
+
+	<script>
+		document.addEventListener("click", (event) => {
+			const btn = (event.target as HTMLElement).closest<HTMLButtonElement>(".commentary-tab");
+			if (!btn) return;
+			const group = btn.closest(".commentary-block");
+			if (!group) return;
+			const target = btn.dataset.target;
+
+			group.querySelectorAll(".commentary-tab").forEach((b) => b.classList.toggle("active", b === btn));
+			group
+				.querySelectorAll(".commentary-panel")
+				.forEach((p) => p.classList.toggle("active", p.id === target));
+		});
+	</script>
+</Layout>
