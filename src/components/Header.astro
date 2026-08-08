@@ -1,0 +1,31 @@
+---
+const base = import.meta.env.BASE_URL;
+const path = Astro.url.pathname;
+
+const navItems = [
+	{ href: `${base}`, label: "मुख्यपृष्ठम्" },
+	{ href: `${base}#sandesha`, label: "सन्देशः" },
+	{ href: `${base}ग्रन्थाः/`, label: "ग्रन्थाः" },
+	{ href: `${base}अन्वेषणम्/`, label: "अन्वेषणम्" },
+	{ href: `${base}साहाय्यम्/`, label: "साहाय्यम्" },
+];
+---
+
+<header id="header">
+	<nav class="navbar">
+		<a class="wordmark" href={base}>चैतन्य सिद्धान्त वाङ्मय</a>
+		<input type="checkbox" id="nav-toggle" class="nav-toggle" />
+		<label for="nav-toggle" class="nav-toggle-label" aria-label="Toggle navigation">&#9776;</label>
+		<ul class="nav-links">
+			{
+				navItems.map((item) => (
+					<li>
+						<a href={item.href} class={path === item.href ? "active" : ""}>
+							{item.label}
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	</nav>
+</header>

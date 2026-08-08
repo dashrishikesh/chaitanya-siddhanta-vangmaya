@@ -1,0 +1,120 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+interface Book {
+	name: string;
+	author?: string;
+	href: string;
+}
+
+interface Group {
+	heading: string;
+	cat: 1 | 2 | 3 | 4;
+	books: Book[];
+}
+
+// Placeholder structure only — swap these groups/entries for your real
+// text list and links.
+const groups: Group[] = [
+	{
+		heading: "प्रथमः ग्रन्थवर्गः (मूलग्रन्थाः)",
+		cat: 1,
+		books: [
+			{ name: "ग्रन्थनाम १", href: "#" },
+			{ name: "ग्रन्थनाम २", href: "#" },
+			{ name: "ग्रन्थनाम ३", href: "#" },
+			{ name: "ग्रन्थनाम ४", href: "#" },
+			{ name: "ग्रन्थनाम ५", href: "#" },
+		],
+	},
+	{
+		heading: "द्वितीयः ग्रन्थवर्गः (प्रकरणग्रन्थाः)",
+		cat: 2,
+		books: [
+			{ name: "ग्रन्थनाम ६", author: "लेखकस्य नाम", href: "#" },
+			{ name: "ग्रन्थनाम ७", author: "लेखकस्य नाम", href: "#" },
+			{ name: "ग्रन्थनाम ८", author: "लेखकस्य नाम", href: "#" },
+		],
+	},
+	{
+		heading: "तृतीयः ग्रन्थवर्गः (व्याख्यानानि)",
+		cat: 3,
+		books: [
+			{ name: "ग्रन्थनाम ९", author: "लेखकस्य नाम", href: "#" },
+			{ name: "ग्रन्थनाम १०", author: "लेखकस्य नाम", href: "#" },
+			{ name: "ग्रन्थनाम ११", author: "लेखकस्य नाम", href: "#" },
+			{ name: "ग्रन्थनाम १२", author: "लेखकस्य नाम", href: "#" },
+		],
+	},
+	{
+		heading: "चतुर्थः ग्रन्थवर्गः (इतरे ग्रन्थाः)",
+		cat: 4,
+		books: [
+			{ name: "ग्रन्थनाम १३", author: "लेखकस्य नाम", href: "#" },
+			{ name: "ग्रन्थनाम १४", author: "लेखकस्य नाम", href: "#" },
+		],
+	},
+];
+
+const catClass = (cat: number) => `cat-${cat}`;
+---
+
+<Layout title="ग्रन्थाः">
+	<div class="container works">
+		<h2 class="works-heading">चैतन्यसिद्धान्तवाङ्मयम्</h2>
+
+		<div class="view-toggle">
+			<button id="btn-grid" class="active" type="button">Grid view</button>
+			<button id="btn-tree" type="button">Tree view</button>
+		</div>
+
+		<div id="tree-view" class="tree-view">
+			तालवृक्षदृश्यम् (tree view) शीघ्रमेव उपलभ्यते। — Tree view coming soon.
+		</div>
+
+		<div id="grid-view" class="grid-view">
+			{
+				groups.map((group) => (
+					<div class="group">
+						<h3 class={`group-heading ${catClass(group.cat)}`}>{group.heading}</h3>
+						<div class={`book-strips ${catClass(group.cat)}`}>
+							{group.books.map((book) => (
+								<a href={book.href} target="_blank" rel="noopener noreferrer">
+									{book.author && <span class="author">{book.author}</span>}
+									<span class="name">{book.name}</span>
+								</a>
+							))}
+						</div>
+						<hr />
+					</div>
+				))
+			}
+		</div>
+
+		<p class="placeholder-note">
+			[ placeholder — this whole listing (categories, headings, entries, links) is sample
+			structure. Replace with your actual text corpus. ]
+		</p>
+	</div>
+
+	<script>
+		const gridBtn = document.getElementById("btn-grid");
+		const treeBtn = document.getElementById("btn-tree");
+		const gridView = document.getElementById("grid-view");
+		const treeView = document.getElementById("tree-view");
+
+		gridBtn?.addEventListener("click", () => {
+			gridBtn.classList.add("active");
+			treeBtn?.classList.remove("active");
+			gridView?.classList.remove("hidden");
+			treeView?.classList.remove("active");
+		});
+
+		treeBtn?.addEventListener("click", () => {
+			treeBtn.classList.add("active");
+			gridBtn?.classList.remove("active");
+			gridView?.classList.add("hidden");
+			treeView?.classList.add("active");
+		});
+	</script>
+</Layout>

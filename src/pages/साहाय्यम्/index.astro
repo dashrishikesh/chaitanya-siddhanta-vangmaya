@@ -1,0 +1,37 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+const base = import.meta.env.BASE_URL;
+
+const items = [
+	{
+		q: "अस्मिन् जालस्थाने किं किं उपलभ्यते?",
+		a: `अत्र चैतन्यसिद्धान्तपरम्परायाः ग्रन्थाः, भाष्याणि, व्याख्यानानि च वर्गीकृत्य प्रदर्शितानि सन्ति। सम्पूर्णसूचीं ग्रन्थाः इति विभागे पश्यन्तु।`,
+	},
+	{
+		q: "ग्रन्थान् कथं अन्विष्यामि?",
+		a: `अन्वेषणम् विभागं गत्वा ग्रन्थनाम अथवा लेखकनाम टङ्कयित्वा अन्विष्यताम्।`,
+	},
+	{
+		q: "सम्पर्कः कथं करणीयः?",
+		a: `[ placeholder — add your contact email / form link here ]`,
+	},
+];
+---
+
+<Layout title="साहाय्यम्">
+	<div class="page-content">
+		<h2>साहाय्यम्</h2>
+		{
+			items.map((item) => (
+				<div class="help-item">
+					<h3>{item.q}</h3>
+					<p>{item.a}</p>
+				</div>
+			))
+		}
+		<p style="text-align:center;">
+			<a href={`${base}ग्रन्थाः/`}>&larr; ग्रन्थाः विभागं गच्छतु</a>
+		</p>
+	</div>
+</Layout>

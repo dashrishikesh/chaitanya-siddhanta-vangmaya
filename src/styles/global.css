@@ -1,0 +1,446 @@
+/* ---------------------------------------------------------------------
+   चैतन्य सिद्धान्त वाङ्मय — global styles
+   Palette / layout modeled after the reference archive UI:
+   - body copy: sans-serif, muted grey (#666)
+   - headings & nav: Devanagari display face
+   - accent red for links/category 1, indigo / teal / brown for other
+     category groups
+--------------------------------------------------------------------- */
+
+:root {
+	--color-text: #666666;
+	--color-heading: #333333;
+	--color-link: #bd1550;
+	--color-link-hover: #e93675;
+	--color-border: #cccccc;
+	--color-title-bg: #9e1717;
+
+	--color-cat-1: #f44336; /* red */
+	--color-cat-2: #0277bd; /* indigo */
+	--color-cat-3: #80cbc4; /* green */
+	--color-cat-4: #a1887f; /* brown */
+
+	--font-body: "Open Sans", Helvetica, Arial, sans-serif;
+	--font-display: "Noto Serif Devanagari", "Open Sans", Helvetica, Arial, sans-serif;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+html {
+	font-size: 100%;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	font-family: var(--font-body);
+	font-size: 0.9375rem;
+	color: var(--color-text);
+	background: #ffffff;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: var(--font-body);
+	font-weight: 400;
+	color: var(--color-heading);
+	margin: 0 0 0.6em;
+}
+
+a {
+	color: var(--color-link);
+	text-decoration: none;
+	transition: 0.2s ease-in-out all;
+}
+
+a:hover {
+	color: var(--color-link-hover);
+}
+
+.container {
+	max-width: 1080px;
+	margin: 0 auto;
+	padding: 0 20px;
+}
+
+/* -----------------------------------------------------------------
+   Header / navigation
+----------------------------------------------------------------- */
+
+#header {
+	border-bottom: 1px solid var(--color-border);
+	background: #ffffff;
+	position: sticky;
+	top: 0;
+	z-index: 99;
+}
+
+.navbar {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	padding: 0;
+	width: 100%;
+}
+
+.wordmark {
+	font-family: var(--font-display);
+	font-size: 1.6rem;
+	line-height: 65px;
+	color: var(--color-heading);
+	text-decoration: none;
+	padding: 0 20px;
+	white-space: nowrap;
+}
+
+.wordmark:hover {
+	color: var(--color-heading);
+}
+
+.nav-toggle {
+	display: none;
+}
+
+.nav-links {
+	list-style: none;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	margin: 0;
+	padding: 0;
+	font-family: var(--font-display);
+	font-weight: 300;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+}
+
+.nav-links li a {
+	display: inline-block;
+	padding: 20px 15px;
+	margin: 0 8px;
+	color: #454545;
+}
+
+.nav-links li a:hover,
+.nav-links li a.active {
+	color: #000000;
+}
+
+.nav-toggle-label {
+	display: none;
+	cursor: pointer;
+	padding: 20px;
+	font-size: 1.3rem;
+}
+
+@media (max-width: 768px) {
+	.navbar {
+		justify-content: space-between;
+		padding: 0 10px;
+	}
+	.nav-toggle-label {
+		display: block;
+	}
+	.nav-links {
+		flex-direction: column;
+		width: 100%;
+		max-height: 0;
+		overflow: hidden;
+		transition: max-height 0.25s ease-in-out;
+	}
+	.nav-toggle:checked ~ .nav-links {
+		max-height: 400px;
+	}
+	.nav-links li a {
+		display: block;
+		padding: 12px 20px;
+		margin: 0;
+		border-top: 1px solid #f0f0f0;
+	}
+}
+
+/* -----------------------------------------------------------------
+   Hero (home page)
+----------------------------------------------------------------- */
+
+.hero {
+	text-align: center;
+	padding: 70px 20px;
+	background: #f4f4f4;
+}
+
+.hero .title {
+	font-family: var(--font-display);
+	font-size: 3rem;
+	color: var(--color-heading);
+	margin: 0;
+}
+
+.hero .tagline {
+	font-family: var(--font-display);
+	font-size: 1.25rem;
+	color: #9e2318;
+	margin: 15px 0 0;
+}
+
+.intro {
+	font-size: 1.125rem;
+	line-height: 2em;
+	text-align: center;
+	padding: 50px 20px;
+	max-width: 800px;
+	margin: 0 auto;
+}
+
+.message-section {
+	font-size: 1.125rem;
+	line-height: 2em;
+	text-align: center;
+	padding: 50px 20px;
+	max-width: 800px;
+	margin: 0 auto;
+}
+
+.placeholder-note {
+	display: inline-block;
+	margin-top: 1.5em;
+	font-family: var(--font-body);
+	font-size: 0.8rem;
+	color: #aaaaaa;
+	border: 1px dashed #dddddd;
+	border-radius: 4px;
+	padding: 8px 14px;
+}
+
+/* -----------------------------------------------------------------
+   Works / texts listing (ग्रन्थाः)
+----------------------------------------------------------------- */
+
+.works {
+	padding: 0 20px 50px;
+	font-family: var(--font-display);
+	text-align: left;
+	color: #aaaaaa;
+}
+
+@media (min-width: 900px) {
+	.works {
+		padding: 0 50px 50px;
+	}
+}
+
+.works-heading {
+	text-align: center;
+	margin: 0 0 20px;
+	font-family: var(--font-display);
+	color: #ffffff;
+	font-size: 1.75rem;
+	background-color: var(--color-title-bg);
+	line-height: 100px;
+	padding: 0 10px;
+}
+
+@media (min-width: 900px) {
+	.works-heading {
+		margin-bottom: 60px;
+	}
+}
+
+.view-toggle {
+	text-align: center;
+	margin: -30px 0 30px;
+}
+
+.view-toggle button {
+	font-family: var(--font-body);
+	font-size: 0.85rem;
+	background: #ffffff;
+	border: 1px solid var(--color-border);
+	border-radius: 4px;
+	padding: 6px 14px;
+	margin: 0 4px;
+	cursor: pointer;
+	color: #555555;
+}
+
+.view-toggle button.active {
+	background: var(--color-title-bg);
+	border-color: var(--color-title-bg);
+	color: #ffffff;
+}
+
+.group {
+	margin-bottom: 10px;
+}
+
+.group-heading {
+	text-align: center;
+	margin-bottom: 10px;
+	font-family: var(--font-display);
+	font-size: 1.5rem;
+	line-height: 50px;
+}
+
+.group-heading.cat-1 {
+	color: var(--color-cat-1);
+}
+.group-heading.cat-2 {
+	color: var(--color-cat-2);
+}
+.group-heading.cat-3 {
+	color: var(--color-cat-3);
+}
+.group-heading.cat-4 {
+	color: var(--color-cat-4);
+}
+
+.book-strips {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.book-strips a {
+	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.25);
+	display: inline-block;
+	padding: 20px 15px;
+	margin: 12px 12px 12px 0;
+	color: #555555;
+	min-width: 250px;
+	max-width: 320px;
+	text-align: left;
+	font-family: var(--font-body);
+}
+
+.book-strips a:hover {
+	box-shadow: 2px 2px 7px rgba(0, 0, 0, 0.2);
+}
+
+.book-strips a .author {
+	display: block;
+	font-size: 0.8em;
+	margin-bottom: 10px;
+	color: #888888;
+}
+
+.book-strips a .name {
+	display: block;
+	margin: 0;
+	font-family: var(--font-display);
+	font-size: 1.05rem;
+	color: #333333;
+}
+
+.book-strips.cat-1 a {
+	border-left: 5px solid var(--color-cat-1);
+}
+.book-strips.cat-2 a {
+	border-left: 5px solid var(--color-cat-2);
+}
+.book-strips.cat-3 a {
+	border-left: 5px solid var(--color-cat-3);
+}
+.book-strips.cat-4 a {
+	border-left: 5px solid var(--color-cat-4);
+}
+
+.group hr {
+	border: none;
+	border-top: 1px solid #eeeeee;
+	margin: 30px 0;
+}
+
+.tree-view {
+	display: none;
+	padding: 40px 20px;
+	text-align: center;
+	color: #999999;
+	font-family: var(--font-body);
+	border: 1px dashed var(--color-border);
+	border-radius: 6px;
+	margin-bottom: 30px;
+}
+
+.tree-view.active {
+	display: block;
+}
+
+.grid-view.hidden {
+	display: none;
+}
+
+/* -----------------------------------------------------------------
+   Generic page content (साहाय्यम् / अन्वेषणम्)
+----------------------------------------------------------------- */
+
+.page-content {
+	padding: 50px 20px;
+	max-width: 800px;
+	margin: 0 auto;
+	line-height: 1.9em;
+}
+
+.page-content h2 {
+	font-family: var(--font-display);
+	text-align: center;
+	margin-bottom: 30px;
+}
+
+.search-form {
+	display: flex;
+	gap: 10px;
+	margin: 0 auto 30px;
+	max-width: 500px;
+}
+
+.search-form input[type="text"] {
+	flex: 1;
+	padding: 10px 14px;
+	border: 1px solid var(--color-border);
+	border-radius: 4px;
+	font-size: 1rem;
+}
+
+.search-form button {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 4px;
+	background: var(--color-link);
+	color: #ffffff;
+	font-size: 1rem;
+	cursor: pointer;
+}
+
+.search-form button:hover {
+	background: var(--color-link-hover);
+}
+
+.help-item {
+	margin-bottom: 30px;
+}
+
+.help-item h3 {
+	font-family: var(--font-display);
+	color: var(--color-link);
+	margin-bottom: 8px;
+}
+
+/* -----------------------------------------------------------------
+   Footer
+----------------------------------------------------------------- */
+
+footer {
+	font-family: var(--font-body);
+	text-align: center;
+	margin-top: 80px;
+	padding: 30px 20px;
+	color: #999999;
+	font-size: 0.85rem;
+	border-top: 1px solid #f0f0f0;
+}
