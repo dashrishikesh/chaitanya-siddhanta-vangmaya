@@ -6,9 +6,14 @@ const base = import.meta.env.BASE_URL;
 
 <Layout title="मुख्यपृष्ठम्">
 	<section class="hero">
-		<img class="hero-logo" src={`${base}images/logo.png`} alt="चैतन्य सिद्धान्त परिषद्" />
-		<h1 class="title">चैतन्य सिद्धान्त वाङ्मय</h1>
-		<span class="tagline">एकः ग्रन्थभण्डारः, अनेकानि रत्नानि</span>
+		<div class="hero-inner">
+			<img class="hero-banner-image" src={`${base}images/images.jpeg`} alt="चैतन्य सिद्धान्त परम्परा" />
+			<div class="hero-content">
+				<img class="hero-logo" src={`${base}images/logo.png`} alt="चैतन्य सिद्धान्त परिषद्" />
+				<h1 class="title">चैतन्य सिद्धान्त वाङ्मय</h1>
+				<span class="tagline">एकः ग्रन्थभण्डारः, अनेकानि रत्नानि</span>
+			</div>
+		</div>
 	</section>
 
 	<section class="intro">
@@ -18,17 +23,22 @@ const base = import.meta.env.BASE_URL;
 		</p>
 	</section>
 
-	<section id="sandesha" class="message-section">
-		<h2>सन्देशः</h2>
-		<p>
-			इदं स्थानं निर्माणाधीनम् अस्ति। अत्र भविष्यति गुरुपरम्परायाः अनुग्रहसन्देशः, स्वागतवचनं वा।
-		</p>
-		<span class="placeholder-note">[ placeholder — replace with your actual message content ]</span>
+	<section class="message-section">
+		<h2>अचिन्त्यभेदाभेदः</h2>
+		<blockquote class="sanskrit-quote">
+			<p>स्वमते तु अचिन्त्य भेदाभेदावेव अचिन्त्य शक्तिमयत्वादिति ।</p>
+			<p class="quote-translation">
+				“To us, acintya-bheda-abheda alone is acceptable, because the substantive is endowed with
+				acintya śaktis.”
+			</p>
+			<cite>— सर्वसंवादिनी, पृ. १४९ (Sarvasamvadini, pg. 149)</cite>
+		</blockquote>
+		<p><a href={`${base}acintya-bhedabheda/`}>अधिकं पठतु &rarr;</a></p>
 	</section>
 
 	<section class="intro">
 		<p>
-			<a href={`${base}ग्रन्थाः/`}>ग्रन्थाः</a> इति विभागं दृष्ट्वा सम्पूर्णं ग्रन्थसूचीं
+			<a href={`${base}granthas/`}>ग्रन्थाः</a> इति विभागं दृष्ट्वा सम्पूर्णं ग्रन्थसूचीं
 			पश्यन्तु।
 		</p>
 	</section>

@@ -1,0 +1,20 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import bodyHtml from "../../content/articles/acintya-bhedabheda.html?raw";
+
+const base = import.meta.env.BASE_URL;
+const sourceUrl = "https://chaitanyasiddhantaparishad.com/acintya-bhedabheda/";
+---
+
+<Layout title="Acintya Bhedābheda" description="Acintya Bhedābheda — the Chaitanya Vaishnava doctrine of inconceivable difference and non-difference between Jīva and Brahman.">
+	<div class="page-content article-body">
+		<h1>Acintya Bhedābheda</h1>
+		<p class="article-source">
+			Source: <a href={sourceUrl} target="_blank" rel="noopener noreferrer">chaitanyasiddhantaparishad.com</a>
+		</p>
+		<Fragment set:html={bodyHtml} />
+		<p style="text-align:center;">
+			<a href={base}>&larr; मुख्यपृष्ठं गच्छतु</a>
+		</p>
+	</div>
+</Layout>
