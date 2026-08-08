@@ -34,17 +34,17 @@ commentaries:
     label: "बलदेवः"
     labelIast: "Baladeva"
     commentator: "श्री बलदेव विद्याभूषण"
-    note: "Sub-commentary on the Sarva-saṃvādinī."
+    note: "Commentary on the root text."
   - id: "radha-mohan"
     label: "राधा-मोहन-गोस्वामी"
     labelIast: "Rādhā-Mohana Gosvāmī"
     commentator: "श्री राधामोहन गोस्वामी"
-    note: "Sub-commentary; several verses left unglossed (न व्याख्यातम्)."
+    note: "Commentary on the root text; several verses left unglossed (न व्याख्यातम्)."
   - id: "gaura-kishora"
     label: "गौर-किशोर-गोस्वामी"
     labelIast: "Gaura-Kiśora Gosvāmī"
     commentator: "श्री गौरकिशोर गोस्वामी"
-    note: "The most expansive of the four layers, engaging opposing views at length."
+    note: "Commentary on the root text, the most expansive of the four, engaging opposing views at length."
 availableScripts: ["devanagari", "iast"]
 ---
 
@@ -53,15 +53,11 @@ availableScripts: ["devanagari", "iast"]
 *(षट्सन्दर्भाणां प्रथमो ग्रन्थः — सामूहिकतया "श्रीभागवतसन्दर्भः" इति नाम्ना अपि प्रसिद्धः)*
 
 > **चतुर्-स्तरीय-व्याख्या-सहितम्**
-> मूल-ग्रन्थः श्रीजीवगोस्वामिकृतः, तस्योपरि स्वोपज्ञा सर्व-संवादिनी-व्याख्या, तस्याश् च उपरि त्रयः टीकाकाराः — बलदेवः, राधा-मोहन-गोस्वामी, गौर-किशोर-गोस्वामी।
+> मूल-ग्रन्थः श्रीजीवगोस्वामिकृतः । तत्र स्वोपज्ञा सर्व-संवादिनी-व्याख्या, तथा मूल-ग्रन्थस्यैव स्वतन्त्रं व्याचक्षते त्रयः अन्ये टीकाकाराः — बलदेवः, राधा-मोहन-गोस्वामी, गौर-किशोर-गोस्वामी।
 
 ---
 
-## प्रारम्भिक टिप्पणी
-
-> अत्र शिरो-वाक्यं कस्मिंश्चित् हस्त-लिप्यां न लभ्यते । तद् एव प्रकरण-लब्धम् इति सम्पादकेनानेन संयोजितम्। अस्य सन्दर्भस्य तिस्रो विभागाः — मङ्गलाचरणं, प्रमाण-प्रकरणं, प्रामेय-प्रकरणं च ।
-
----
+> **श्री-कृष्णो जयति ।**
 
 ## मूल-श्लोकः १
 

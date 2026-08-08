@@ -34,17 +34,17 @@ commentaries:
     label: "बलदेवः"
     labelIast: "Baladeva"
     commentator: "श्री बलदेव विद्याभूषण"
-    note: "Sub-commentary on the Sarva-saṃvādinī."
+    note: "Commentary on the root text."
   - id: "radha-mohan"
     label: "राधा-मोहन-गोस्वामी"
     labelIast: "Rādhā-Mohana Gosvāmī"
     commentator: "श्री राधामोहन गोस्वामी"
-    note: "Sub-commentary; several verses left unglossed (न व्याख्यातम्)."
+    note: "Commentary on the root text; several verses left unglossed (न व्याख्यातम्)."
   - id: "gaura-kishora"
     label: "गौर-किशोर-गोस्वामी"
     labelIast: "Gaura-Kiśora Gosvāmī"
     commentator: "श्री गौरकिशोर गोस्वामी"
-    note: "The most expansive of the four layers, engaging opposing views at length."
+    note: "Commentary on the root text, the most expansive of the four, engaging opposing views at length."
 availableScripts: ["devanagari", "iast"]
 ---
 
