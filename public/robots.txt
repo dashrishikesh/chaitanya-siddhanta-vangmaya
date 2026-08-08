@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://chaitanyavangmaya.chaitanyasiddhantaparishad.com/sitemap-index.xml

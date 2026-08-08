@@ -5,11 +5,27 @@ import "../styles/global.css";
 
 interface Props {
 	title: string;
+	titleIsFullPage?: boolean;
 	description?: string;
+	image?: string;
 }
 
-const { title, description = "चैतन्य सिद्धान्त वाङ्मय — चैतन्य सिद्धान्त ग्रन्थभण्डारः" } = Astro.props;
+const SITE_NAME = "चैतन्य सिद्धान्त वाङ्मय";
+const SITE_NAME_IAST = "Chaitanya Siddhanta Vāṅmaya";
+const DEFAULT_DESCRIPTION =
+	"Chaitanya Siddhanta Vāṅmaya is a digital archive of Gauḍīya Vaiṣṇava philosophical texts in the Chaitanya Siddhanta tradition — root works (mūla) alongside their historical commentaries, published by Chaitanya Siddhanta Parishad.";
+
+const {
+	title,
+	titleIsFullPage = false,
+	description = DEFAULT_DESCRIPTION,
+	image,
+} = Astro.props;
+
 const base = import.meta.env.BASE_URL;
+const pageTitle = titleIsFullPage ? title : `${title} — ${SITE_NAME} | ${SITE_NAME_IAST}`;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(image ?? `${base}images/logo.png`, Astro.site).toString();
 ---
 
 <!doctype html>
@@ -20,13 +36,46 @@ const base = import.meta.env.BASE_URL;
 		<meta name="description" content={description} />
 		<meta name="generator" content={Astro.generator} />
 		<link rel="icon" type="image/png" href={`${base}favicon.png`} />
+		<link rel="canonical" href={canonicalURL} />
+
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
 			href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap"
 			rel="stylesheet"
 		/>
-		<title>{title} | चैतन्य सिद्धान्त वाङ्मय</title>
+
+		<title>{pageTitle}</title>
+
+		<!-- Open Graph -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={canonicalURL} />
+		<meta property="og:title" content={pageTitle} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={ogImage} />
+		<meta property="og:site_name" content={`${SITE_NAME} — ${SITE_NAME_IAST}`} />
+		<meta property="og:locale" content="sa_IN" />
+
+		<!-- Twitter -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={pageTitle} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImage} />
+
+		<script type="application/ld+json" is:inline set:html={JSON.stringify({
+			"@context": "https://schema.org",
+			"@type": "WebSite",
+			name: `${SITE_NAME} (${SITE_NAME_IAST})`,
+			alternateName: SITE_NAME_IAST,
+			url: Astro.site?.toString(),
+			description: DEFAULT_DESCRIPTION,
+			inLanguage: ["sa", "en"],
+			publisher: {
+				"@type": "Organization",
+				name: "Chaitanya Siddhanta Parishad",
+				url: "https://chaitanyasiddhantaparishad.com/",
+			},
+		})} />
 	</head>
 	<body>
 		<Header />
