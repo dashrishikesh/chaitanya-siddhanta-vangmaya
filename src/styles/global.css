@@ -91,17 +91,34 @@ a:hover {
 }
 
 .wordmark {
+	display: flex;
+	align-items: center;
+	gap: 12px;
 	font-family: var(--font-display);
-	font-size: 1.6rem;
-	line-height: 65px;
+	font-size: 1.4rem;
 	color: var(--color-heading);
 	text-decoration: none;
-	padding: 0 20px;
+	padding: 10px 20px;
 	white-space: nowrap;
 }
 
 .wordmark:hover {
 	color: var(--color-heading);
+}
+
+.wordmark-logo {
+	height: 46px;
+	width: auto;
+	display: block;
+}
+
+@media (max-width: 480px) {
+	.wordmark {
+		font-size: 1.1rem;
+	}
+	.wordmark-logo {
+		height: 36px;
+	}
 }
 
 .nav-toggle {
@@ -174,6 +191,13 @@ a:hover {
 	text-align: center;
 	padding: 70px 20px;
 	background: #f4f4f4;
+}
+
+.hero-logo {
+	width: 160px;
+	height: auto;
+	margin: 0 auto 25px;
+	display: block;
 }
 
 .hero .title {
