@@ -39,12 +39,12 @@ commentaries:
     label: "राधा-मोहन-गोस्वामी"
     labelIast: "Rādhā-Mohana Gosvāmī"
     commentator: "श्री राधामोहन गोस्वामी"
-    note: "Commentary on the root text; several verses left unglossed (न व्याख्यातम्)."
+    note: "Commentary on the root text."
   - id: "gaura-kishora"
     label: "गौर-किशोर-गोस्वामी"
     labelIast: "Gaura-Kiśora Gosvāmī"
     commentator: "श्री गौरकिशोर गोस्वामी"
-    note: "Commentary on the root text, the most expansive of the four, engaging opposing views at length."
+    note: "Commentary on the root text."
 availableScripts: ["devanagari", "iast"]
 ---
 
@@ -59,7 +59,7 @@ availableScripts: ["devanagari", "iast"]
 
 > **श्री-कृष्णो जयति ।**
 
-## मूल-श्लोकः १
+## अनुच्छेदः १
 
 > **कृष्ण-वर्णं त्विषाकृष्णं**
 > **साङ्गोपाङ्गास्त्र-पार्षदम् ।**
@@ -244,7 +244,7 @@ availableScripts: ["devanagari", "iast"]
 
 ---
 
-## मूल-श्लोकः २
+## अनुच्छेदः २
 
 > **अन्तः कृष्णं बहिर् गौरं**
 > **दर्शिताङ्गादि-वैभवम् ।**
@@ -424,7 +424,7 @@ availableScripts: ["devanagari", "iast"]
 
 ---
 
-## मूल-श्लोकः ३
+## अनुच्छेदः ३
 
 > **जयतां मथुरा-भूमौ**
 > **श्रील-रूप-सनातनौ ।**
@@ -457,7 +457,7 @@ availableScripts: ["devanagari", "iast"]
 
 ---
 
-## मूल-श्लोकः ४
+## अनुच्छेदः ४
 
 > **कोऽपि तद्-बान्धवो भट्टो**
 > **दक्षिण-द्विज-वंशजः ।**
@@ -488,7 +488,7 @@ availableScripts: ["devanagari", "iast"]
 
 ---
 
-## मूल-श्लोकः ५
+## अनुच्छेदः ५
 
 > **तस्याद्यं ग्रन्थनालेखं**
 > **क्रान्त-व्युत्क्रान्त-खण्डितम् ।**
@@ -523,7 +523,7 @@ availableScripts: ["devanagari", "iast"]
 
 ---
 
-## मूल-श्लोकः ६
+## अनुच्छेदः ६
 
 > **यः श्री-कृष्ण-पदाम्भोज-**
 > **भजनैकाभिलाषवान् ।**
@@ -556,7 +556,7 @@ availableScripts: ["devanagari", "iast"]
 
 ---
 
-## मूल-श्लोकः ७
+## अनुच्छेदः ७
 
 > **अथ नत्वा मन्त्र-गुरून्**
 > **गुरून् भागवतार्थदान् ।**
@@ -597,7 +597,7 @@ availableScripts: ["devanagari", "iast"]
 
 ---
 
-## मूल-श्लोकः ८
+## अनुच्छेदः ८
 
 > **यस्य ब्रह्मेति संज्ञां क्वचिद् अपि निगमे याति चिन्-मात्र-सत्ताप्य्**
 > **अंशो यस्यांशकैः स्वैर् विभवति वशयन्न् एव मायां पुमांश् च ।**
