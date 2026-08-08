@@ -18,30 +18,21 @@ const base = import.meta.env.BASE_URL;
 const granthaEntries = await getCollection("granthas");
 const tattvaSandarbha = granthaEntries.find((e) => e.data.workSlug === "tattva-sandarbha");
 
-const jivaGosvami = "जीव गोस्वामी";
-
-// The six sandarbhas are a fixed, traditional set — only तत्त्वसन्दर्भः is
-// linked so far; the rest are placeholders until their content is added.
-const groups: Group[] = [
-	{
-		heading: "षट्सन्दर्भाः",
-		cat: 1,
-		books: [
-			tattvaSandarbha
-				? {
+const groups: Group[] = tattvaSandarbha
+	? [
+			{
+				heading: "षट्सन्दर्भाः",
+				cat: 1,
+				books: [
+					{
 						name: tattvaSandarbha.data.work.devanagari,
 						author: tattvaSandarbha.data.author,
 						href: `${base}granthas/${tattvaSandarbha.data.workSlug}/`,
-					}
-				: { name: "तत्त्वसन्दर्भः", author: jivaGosvami, href: "#" },
-			{ name: "भागवतसन्दर्भः", author: jivaGosvami, href: "#" },
-			{ name: "परमात्मसन्दर्भः", author: jivaGosvami, href: "#" },
-			{ name: "कृष्णसन्दर्भः", author: jivaGosvami, href: "#" },
-			{ name: "भक्तिसन्दर्भः", author: jivaGosvami, href: "#" },
-			{ name: "प्रीतिसन्दर्भः", author: jivaGosvami, href: "#" },
-		],
-	},
-];
+					},
+				],
+			},
+		]
+	: [];
 
 const catClass = (cat: number) => `cat-${cat}`;
 ---
@@ -49,15 +40,6 @@ const catClass = (cat: number) => `cat-${cat}`;
 <Layout title="ग्रन्थाः">
 	<div class="container works">
 		<h2 class="works-heading">चैतन्यसिद्धान्तवाङ्मयम्</h2>
-
-		<div class="view-toggle">
-			<button id="btn-grid" class="active" type="button">Grid view</button>
-			<button id="btn-tree" type="button">Tree view</button>
-		</div>
-
-		<div id="tree-view" class="tree-view">
-			तालवृक्षदृश्यम् (tree view) शीघ्रमेव उपलभ्यते। — Tree view coming soon.
-		</div>
 
 		<div id="grid-view" class="grid-view">
 			{
@@ -84,31 +66,5 @@ const catClass = (cat: number) => `cat-${cat}`;
 				))
 			}
 		</div>
-
-		<p class="placeholder-note">
-			[ placeholder — तत्त्वसन्दर्भः is the only sandarbha linked so far; the other five
-			are placeholders until their content is added. ]
-		</p>
 	</div>
-
-	<script>
-		const gridBtn = document.getElementById("btn-grid");
-		const treeBtn = document.getElementById("btn-tree");
-		const gridView = document.getElementById("grid-view");
-		const treeView = document.getElementById("tree-view");
-
-		gridBtn?.addEventListener("click", () => {
-			gridBtn.classList.add("active");
-			treeBtn?.classList.remove("active");
-			gridView?.classList.remove("hidden");
-			treeView?.classList.remove("active");
-		});
-
-		treeBtn?.addEventListener("click", () => {
-			treeBtn.classList.add("active");
-			gridBtn?.classList.remove("active");
-			gridView?.classList.add("hidden");
-			treeView?.classList.add("active");
-		});
-	</script>
 </Layout>
