@@ -12,6 +12,10 @@ const items = [
 		q: "ग्रन्थान् कथं अन्विष्यामि?",
 		a: `अन्वेषणम् विभागं गत्वा ग्रन्थनाम अथवा लेखकनाम टङ्कयित्वा अन्विष्यताम्।`,
 	},
+	{
+		q: "यदि पाठे त्रुटिं पश्यामि तर्हि किं करणीयम्?",
+		a: `कृपया <a href="mailto:chaitanyasiddhantaparishad@gmail.com">chaitanyasiddhantaparishad@gmail.com</a> इत्यत्र त्रुटिविवरणं प्रेषयन्तु।`,
+	},
 ];
 ---
 
@@ -22,7 +26,7 @@ const items = [
 			items.map((item) => (
 				<div class="help-item">
 					<h3>{item.q}</h3>
-					<p>{item.a}</p>
+					<p set:html={item.a} />
 				</div>
 			))
 		}
