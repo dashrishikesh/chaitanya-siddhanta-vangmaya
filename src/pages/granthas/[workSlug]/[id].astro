@@ -35,66 +35,87 @@ const description = `${title.iast}${title.english ? ` — ${title.english}` : ""
 			<a href={`${base}granthas/`}>ग्रन्थाः</a> / <a href={`${base}granthas/${entry.data.workSlug}/`}>{work.devanagari}</a>
 		</p>
 
-		<header class="grantha-header">
-			<h1 class="grantha-title">{title.devanagari}</h1>
-			<p class="grantha-title-iast">{title.iast}</p>
-			<p class="grantha-work">{work.devanagari} <span class="grantha-work-iast">({work.iast})</span></p>
-			{
-				corpusName && (
-					<p class="grantha-corpus">
-						{corpusName.devanagari} <span class="grantha-work-iast">({corpusName.iast})</span>
-					</p>
-				)
-			}
-			<p class="grantha-author">कर्ता: {author}</p>
-		</header>
+		<div class="grantha-intro">
+			<header class="grantha-header">
+				<h1 class="grantha-title">{title.devanagari}</h1>
+				<p class="grantha-title-iast">{title.iast}</p>
+				<p class="grantha-work">{work.devanagari} <span class="grantha-work-iast">({work.iast})</span></p>
+				{
+					corpusName && (
+						<p class="grantha-corpus">
+							{corpusName.devanagari} <span class="grantha-work-iast">({corpusName.iast})</span>
+						</p>
+					)
+				}
+				<p class="grantha-author">कर्ता: {author}</p>
+			</header>
 
-		{parsed.openingHtml && <div class="grantha-opening" set:html={parsed.openingHtml} />}
+			{parsed.openingHtml && <div class="grantha-opening" set:html={parsed.openingHtml} />}
+		</div>
 
-		{
-			parsed.sections.map((section, si) => (
-				<section class="verse" id={`section-${si}`}>
-					<h2 class="verse-heading">{section.heading}</h2>
-					{
-						section.introHtml && (
-							<div
-								class={`verse-text${section.subsections.length > 0 ? " has-commentary" : ""}`}
-								set:html={section.introHtml}
-							/>
-						)
-					}
+		<div class="grantha-layout">
+			{parsed.sections.length > 1 && (
+				<aside class="grantha-toc">
+					<p class="grantha-toc-label">अनुक्रमणिका</p>
+					<ul>
+						{parsed.sections.map((section, si) => (
+							<li>
+								<a href={`#section-${si}`} data-toc-target={`section-${si}`}>
+									{section.heading}
+								</a>
+							</li>
+						))}
+					</ul>
+				</aside>
+			)}
 
-					{section.subsections.length > 0 && (
-						<div class="commentary-block">
-							<div class="commentary-tabs" role="tablist">
-								{section.subsections.map((sub, ci) => {
-									const meta = matchCommentary(sub.heading);
-									return (
-										<button
-											type="button"
-											class={`commentary-tab${ci === 0 ? " active" : ""}`}
-											data-target={`v${si}-c${ci}`}
-										>
-											{meta?.label ?? fallbackLabel(sub.heading)}
-										</button>
-									);
-								})}
-							</div>
-							{section.subsections.map((sub, ci) => {
-								const meta = matchCommentary(sub.heading);
-								return (
-									<div class={`commentary-panel${ci === 0 ? " active" : ""}`} id={`v${si}-c${ci}`}>
-										{meta?.commentator && <p class="commentator-byline">{meta.commentator}</p>}
-										{meta?.note && <p class="commentator-note">{meta.note}</p>}
-										<div set:html={sub.html} />
+			<div class="grantha-sections">
+				{
+					parsed.sections.map((section, si) => (
+						<section class="verse" id={`section-${si}`}>
+							<h2 class="verse-heading">{section.heading}</h2>
+							{
+								section.introHtml && (
+									<div
+										class={`verse-text${section.subsections.length > 0 ? " has-commentary" : ""}`}
+										set:html={section.introHtml}
+									/>
+								)
+							}
+
+							{section.subsections.length > 0 && (
+								<div class="commentary-block">
+									<div class="commentary-tabs" role="tablist">
+										{section.subsections.map((sub, ci) => {
+											const meta = matchCommentary(sub.heading);
+											return (
+												<button
+													type="button"
+													class={`commentary-tab${ci === 0 ? " active" : ""}`}
+													data-target={`v${si}-c${ci}`}
+												>
+													{meta?.label ?? fallbackLabel(sub.heading)}
+												</button>
+											);
+										})}
 									</div>
-								);
-							})}
-						</div>
-					)}
-				</section>
-			))
-		}
+									{section.subsections.map((sub, ci) => {
+										const meta = matchCommentary(sub.heading);
+										return (
+											<div class={`commentary-panel${ci === 0 ? " active" : ""}`} id={`v${si}-c${ci}`}>
+												{meta?.commentator && <p class="commentator-byline">{meta.commentator}</p>}
+												{meta?.note && <p class="commentator-note">{meta.note}</p>}
+												<div set:html={sub.html} />
+											</div>
+										);
+									})}
+								</div>
+							)}
+						</section>
+					))
+				}
+			</div>
+		</div>
 	</div>
 
 	<script>
@@ -110,5 +131,22 @@ const description = `${title.iast}${title.english ? ` — ${title.english}` : ""
 				.querySelectorAll(".commentary-panel")
 				.forEach((p) => p.classList.toggle("active", p.id === target));
 		});
+
+		const tocLinks = document.querySelectorAll<HTMLAnchorElement>(".grantha-toc a");
+		if (tocLinks.length > 0) {
+			const setActive = (id: string | null) => {
+				tocLinks.forEach((a) => a.classList.toggle("active", a.dataset.tocTarget === id));
+			};
+			const observer = new IntersectionObserver(
+				(entries) => {
+					const visible = entries.filter((e) => e.isIntersecting);
+					if (visible.length === 0) return;
+					visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+					setActive(visible[0].target.id);
+				},
+				{ rootMargin: "-100px 0px -70% 0px" },
+			);
+			document.querySelectorAll(".verse[id]").forEach((el) => observer.observe(el));
+		}
 	</script>
 </Layout>

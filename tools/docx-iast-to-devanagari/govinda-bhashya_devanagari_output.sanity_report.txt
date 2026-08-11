@@ -1,0 +1,15 @@
+Input:  govinda-bhashya_-_baladeva_vidyabhushana.docx
+Output: govinda-bhashya_devanagari_output.docx
+
+Input paragraph count:  8333
+Output paragraph count: 8333
+Paragraph count match: YES
+
+Converted paragraphs:    3818
+Skipped (non-Sanskrit):  4433
+Mixed English+Sanskrit (left unconverted, needs a human): 82 (see govinda-bhashya_devanagari_output.review_mixed_language.csv)
+Engine disagreements:    2398 (see govinda-bhashya_devanagari_output.review_diffs.csv)
+Mixed-formatting paras:  see govinda-bhashya_devanagari_output.review_formatting.csv
+
+Paragraphs with Devanagari + stray Latin letters mixed together: 1
+  (worth a manual spot-check -- may be legitimate citations/abbreviations, or leftover conversion gaps)
