@@ -42,8 +42,18 @@ _HEADER_LINES = {
 _COLOPHON_RE = re.compile(r"^इति\s+श्रीरूपगोस्वामिविरचितस्तवमालायां.*(समाप्तम्|सम्पूर्णम्)\s*।?\s*$")
 _PAGE_NUM_RE = re.compile(r"^[0-9]+$")  # ASCII only -- \d also matches Devanagari digits
 _BOOKMARK_TITLE_RE = re.compile(r"॥\s*(.+?)\s*॥")
-_BARE_NUMERAL_RE = re.compile(r"^[०-९]+$")
+_BARE_NUMERAL_RE = re.compile(r"^[(\[]?([०-९]+)[)\]]?$")
 _LONE_DANDA_RE = re.compile(r"^॥+\s*$")
+# One-off OCR/layout glitch on the page-129/130 boundary of Gitavali: a
+# stray "@<digit>" line with no content meaning, sitting right after a
+# malformed "(३९]" item marker.
+_STRAY_ARTIFACT_RE = re.compile(r"^@[०-९]$")
+
+_DEVNUMS = "०१२३४५६७८९"
+
+
+def to_dev_num(n: int) -> str:
+    return "".join(_DEVNUMS[int(c)] for c in str(n))
 
 
 def get_top_level_sections():
@@ -165,27 +175,37 @@ def build_simple_section(s):
 def build_multi_item_sections(s):
     raw = extract_pages_text(s["start"], s["end"])
     lines = strip_boilerplate(raw)
-    cleaned = _drop_title_and_colophon_lines(lines, s["english_prefix"])
+    cleaned = [l for l in _drop_title_and_colophon_lines(lines, s["english_prefix"]) if not _STRAY_ARTIFACT_RE.match(l)]
 
-    # Split on bare-numeral marker lines.
-    chunks = []  # (numeral_or_None, list_of_lines)
-    current_numeral = None
+    # Split on numeral marker lines (usually bare "३९", occasionally
+    # bracketed like "(३९]" due to a source layout glitch). The marker's
+    # own printed numeral is NOT used for the heading -- Shri Govinda
+    # virudavali has a genuine duplicate ("१६" printed twice in a row) in
+    # the source itself, so items are numbered by their actual position in
+    # sequence instead, which is robust to both duplicates and gaps.
+    chunks = []  # (is_marked, list_of_lines)
+    current_is_marked = False
     current_lines = []
     for line in cleaned:
         if _BARE_NUMERAL_RE.match(line):
-            chunks.append((current_numeral, current_lines))
-            current_numeral = line
+            chunks.append((current_is_marked, current_lines))
+            current_is_marked = True
             current_lines = []
         else:
             current_lines.append(line)
-    chunks.append((current_numeral, current_lines))
+    chunks.append((current_is_marked, current_lines))
 
     out = []
-    for numeral, item_lines in chunks:
+    item_num = 0
+    for is_marked, item_lines in chunks:
         text = lines_to_markdown(item_lines)
         if not text.strip():
             continue
-        heading = s["heading"] if numeral is None else f"{s['heading']} {numeral}"
+        if is_marked:
+            item_num += 1
+            heading = f"{s['heading']} {to_dev_num(item_num)}"
+        else:
+            heading = s["heading"]
         out.append((heading, text))
     return out
 
