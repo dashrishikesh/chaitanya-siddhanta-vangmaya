@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+*.pyc
+test_input.docx
+test_big.docx
+test_output*
+test_big_output*
+detect-language/

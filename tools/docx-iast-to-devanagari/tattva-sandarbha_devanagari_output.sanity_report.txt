@@ -1,0 +1,15 @@
+Input:  sat-sandarbha_-_1_-_tattva_sandarbha_-_jiva_gosvamin.docx
+Output: tattva-sandarbha_devanagari_output.docx
+
+Input paragraph count:  2048
+Output paragraph count: 2048
+Paragraph count match: YES
+
+Converted paragraphs:    1192
+Skipped (non-Sanskrit):  849
+Mixed English+Sanskrit (left unconverted, needs a human): 7 (see tattva-sandarbha_devanagari_output.review_mixed_language.csv)
+Engine disagreements:    778 (see tattva-sandarbha_devanagari_output.review_diffs.csv)
+Mixed-formatting paras:  see tattva-sandarbha_devanagari_output.review_formatting.csv
+
+Paragraphs with Devanagari + stray Latin letters mixed together: 0
+  (worth a manual spot-check -- may be legitimate citations/abbreviations, or leftover conversion gaps)
