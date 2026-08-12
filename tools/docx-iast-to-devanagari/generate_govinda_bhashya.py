@@ -186,8 +186,16 @@ def main():
                     continue
 
                 m_label = _LABEL_RE.match(orig_t)
-                if m_label and not label:
-                    label = convert_text(m_label.group(1))
+                if m_label:
+                    # A numbered adhikarana label can appear mid-chunk when
+                    # the source is missing a separator between two
+                    # adhikaranas (they end up merged into one chunk here).
+                    # Always filter the label line out of the sutra/text
+                    # stream -- only the first one becomes the heading tag --
+                    # so a second label doesn't leak through and get
+                    # wrongly bold-tagged as a sutra.
+                    if not label:
+                        label = convert_text(m_label.group(1))
                     continue
 
                 if _MARKER_RE.match(orig_t):
