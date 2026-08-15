@@ -2,7 +2,7 @@ import { getCollection } from "astro:content";
 import govindaBhashyaSutraMap from "../data/govinda-bhashya-sutra-map.json";
 
 // Extracts [वे.सू. …] / [ब्र.सू. …] (Vedanta-sutra / Brahma-sutra) citations
-// from the three Sandarbha works' own markdown bodies at build time. Shared
+// from the four Sandarbha works' own markdown bodies at build time. Shared
 // by the citation-graph page and the per-sutra research page, so both stay
 // in sync with the same extraction and always regenerate from live content.
 //
@@ -31,6 +31,7 @@ const WORK_LABEL: Record<string, string> = {
 	"tattva-sandarbha": "तत्त्वसन्दर्भः",
 	"bhagavat-sandarbha": "भागवतसन्दर्भः",
 	"paramatma-sandarbha": "परमात्मसन्दर्भः",
+	"krishna-sandarbha": "कृष्णसन्दर्भः",
 };
 // Romanized names for the English UI chrome (stat-tile labels, panel text,
 // research page) -- the graph's own node labels (work names, sutra numbers,
@@ -40,10 +41,11 @@ export const WORK_IAST: Record<string, string> = {
 	तत्त्वसन्दर्भः: "Tattva-sandarbha",
 	भागवतसन्दर्भः: "Bhagavat-sandarbha",
 	परमात्मसन्दर्भः: "Paramatma-sandarbha",
+	कृष्णसन्दर्भः: "Krishna-sandarbha",
 	गोविन्दभाष्यम्: "Govinda-bhashya",
 };
 export const GOVINDA_BHASHYA_WORK = "गोविन्दभाष्यम्";
-export const WORKS = ["तत्त्वसन्दर्भः", "भागवतसन्दर्भः", "परमात्मसन्दर्भः", GOVINDA_BHASHYA_WORK];
+export const WORKS = ["तत्त्वसन्दर्भः", "भागवतसन्दर्भः", "परमात्मसन्दर्भः", "कृष्णसन्दर्भः", GOVINDA_BHASHYA_WORK];
 
 interface GovindaBhashyaMapEntry {
 	workSlug: string;

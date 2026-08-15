@@ -15,6 +15,7 @@ const workClass = (w: string): string => {
 	if (w === "तत्त्वसन्दर्भः") return "tattva";
 	if (w === "भागवतसन्दर्भः") return "bhagavat";
 	if (w === "परमात्मसन्दर्भः") return "paramatma";
+	if (w === "कृष्णसन्दर्भः") return "krishna";
 	return "bhagavat";
 };
 
@@ -23,12 +24,12 @@ const base = import.meta.env.BASE_URL;
 
 <Layout
 	title="Browse Vedānta-sūtras"
-	description="Browse every Vedānta-sūtra (Brahma-sūtra) cited across Tattva-sandarbha, Bhagavat-sandarbha, and Paramatma-sandarbha, each linking to a full research page."
+	description="Browse every Vedānta-sūtra (Brahma-sūtra) cited across Tattva-sandarbha, Bhagavat-sandarbha, Paramatma-sandarbha, and Krishna-sandarbha, each linking to a full research page."
 >
 	<div class="index-page">
 		<p class="breadcrumb"><a href={`${base}vedanta-sutra-graph/`}>&larr; Vedānta-sūtra Citation Graph</a></p>
 		<h1>Browse Vedānta-sūtras</h1>
-		<p class="subtitle">{sorted.length} sūtras cited across the three Sandarbhas. Click one for its full citation list and, where available, a link into Govinda-bhāṣya's commentary.</p>
+		<p class="subtitle">{sorted.length} sūtras cited across the four Sandarbhas. Click one for its full citation list and, where available, a link into Govinda-bhāṣya's commentary.</p>
 
 		{
 			[...byAdhyaya.entries()].map(([adh, group]) => (
@@ -124,6 +125,9 @@ const base = import.meta.env.BASE_URL;
 	}
 	.dot.paramatma {
 		background: #00897b;
+	}
+	.dot.krishna {
+		background: #b8860b;
 	}
 	.dot.govinda {
 		background: #795548;

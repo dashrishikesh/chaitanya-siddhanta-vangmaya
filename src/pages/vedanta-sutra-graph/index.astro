@@ -181,6 +181,7 @@ for (const adh of [...sutrasByAdhyaya.keys()].sort((a, b) => a - b)) {
 			तत्त्वसन्दर्भः: "node-sutra-tattva",
 			भागवतसन्दर्भः: "node-sutra-bhagavat",
 			परमात्मसन्दर्भः: "node-sutra-paramatma",
+				कृष्णसन्दर्भः: "node-sutra-krishna",
 		};
 		const cls = worksHere.length > 1 ? "node-sutra-both" : (WORK_CLS[worksHere[0]] ?? "node-sutra-bhagavat");
 		const nCites = sandarbhaCites.length;
@@ -231,7 +232,7 @@ const base = import.meta.env.BASE_URL;
 	<div class="kg-page">
 		<h1>वेदान्तसूत्र-ज्ञानालेखः <span class="h1-sub">Vedānta-sūtra Citation Graph</span></h1>
 		<p class="subtitle">
-			A graph of every <b>Vedānta-sūtra</b> (Brahma-sūtra) citation across the three Sandarbhas, plus a direct link from
+			A graph of every <b>Vedānta-sūtra</b> (Brahma-sūtra) citation across the four Sandarbhas, plus a direct link from
 			each sūtra to the adhikaraṇa of <b>Govinda-bhāṣya</b> (Baladeva Vidyābhūṣaṇa's own sūtra-by-sūtra commentary) that
 			comments on it. Left column: the citing works. Middle: the sections that cite each sūtra. Right: the sūtras
 			themselves, grouped by adhyāya. Sources cite sūtras under two abbreviations —<b>वे.सू.</b> (Vedānta-sūtra) and
@@ -256,6 +257,7 @@ const base = import.meta.env.BASE_URL;
 			<span class="item"><span class="swatch" style="background:var(--kg-tattva)"></span> तत्त्वसन्दर्भः</span>
 			<span class="item"><span class="swatch" style="background:var(--kg-bhagavat)"></span> भागवतसन्दर्भः</span>
 			<span class="item"><span class="swatch" style="background:var(--kg-paramatma)"></span> परमात्मसन्दर्भः</span>
+			<span class="item"><span class="swatch" style="background:var(--kg-krishna)"></span> कृष्णसन्दर्भः</span>
 			<span class="item"><span class="swatch" style="background:var(--kg-govinda)"></span> गोविन्दभाष्यम् (sūtra commentary)</span>
 			<span class="item"><span class="swatch line" style="background:var(--color-text)"></span> section &rarr; sūtra</span>
 			<span class="hint">— click a node for details</span>
@@ -285,7 +287,7 @@ const base = import.meta.env.BASE_URL;
 		</div>
 
 		<p class="method-note">
-			Method: scans the site content of the three Sandarbha works for <code>[वे.सू. …]</code> / <code>[ब्र.सू. …]</code>
+			Method: scans the site content of the four Sandarbha works for <code>[वे.सू. …]</code> / <code>[ब्र.सू. …]</code>
 			citation markers at build time. A sūtra cited more than once from the same section shows as a single connecting
 			line (with a ×N count beside it); no count means it was cited once. Govinda-bhāṣya doesn't cite sūtras by number —
 			it quotes each sūtra's own text — so its links come from matching each sūtra's text against the live page content
@@ -363,6 +365,7 @@ const base = import.meta.env.BASE_URL;
 		तत्त्वसन्दर्भः: "tattva",
 		भागवतसन्दर्भः: "bhagavat",
 		परमात्मसन्दर्भः: "paramatma",
+		कृष्णसन्दर्भः: "krishna",
 		गोविन्दभाष्यम्: "govinda",
 	};
 	const workClass = (w: string) => WORK_CLASS[w] ?? "bhagavat";
@@ -556,6 +559,7 @@ const base = import.meta.env.BASE_URL;
 		--kg-tattva: var(--color-heading-accent);
 		--kg-bhagavat: var(--color-vyakhya);
 		--kg-paramatma: #00897b;
+		--kg-krishna: #b8860b;
 		--kg-govinda: #795548;
 	}
 
@@ -670,6 +674,10 @@ const base = import.meta.env.BASE_URL;
 		stroke: var(--kg-paramatma);
 		fill: color-mix(in srgb, var(--kg-paramatma) 12%, white);
 	}
+	svg.kg :global(.node-grantha[data-work="कृष्णसन्दर्भः"] rect) {
+		stroke: var(--kg-krishna);
+		fill: color-mix(in srgb, var(--kg-krishna) 12%, white);
+	}
 	svg.kg :global(.node-grantha[data-work="गोविन्दभाष्यम्"] rect) {
 		stroke: var(--kg-govinda);
 		fill: color-mix(in srgb, var(--kg-govinda) 12%, white);
@@ -688,6 +696,9 @@ const base = import.meta.env.BASE_URL;
 	svg.kg :global(.node-section[data-work="परमात्मसन्दर्भः"] rect) {
 		stroke: var(--kg-paramatma);
 	}
+	svg.kg :global(.node-section[data-work="कृष्णसन्दर्भः"] rect) {
+		stroke: var(--kg-krishna);
+	}
 	svg.kg :global(.node-section[data-work="गोविन्दभाष्यम्"] rect) {
 		stroke: var(--kg-govinda);
 		stroke-dasharray: 3 2;
@@ -704,6 +715,10 @@ const base = import.meta.env.BASE_URL;
 	svg.kg :global(.node-sutra-paramatma circle) {
 		fill: var(--kg-paramatma);
 		stroke: var(--kg-paramatma);
+	}
+	svg.kg :global(.node-sutra-krishna circle) {
+		fill: var(--kg-krishna);
+		stroke: var(--kg-krishna);
 	}
 	svg.kg :global(.node-sutra-both circle) {
 		fill: var(--color-text);
@@ -776,6 +791,10 @@ const base = import.meta.env.BASE_URL;
 	}
 	svg.kg :global(.edge-ga[data-from="g:परमात्मसन्दर्भः"]) {
 		stroke: var(--kg-paramatma);
+		opacity: 0.32;
+	}
+	svg.kg :global(.edge-ga[data-from="g:कृष्णसन्दर्भः"]) {
+		stroke: var(--kg-krishna);
 		opacity: 0.32;
 	}
 	svg.kg :global(.edge-ga[data-from="g:गोविन्दभाष्यम्"]) {
@@ -851,6 +870,9 @@ const base = import.meta.env.BASE_URL;
 	}
 	.cite-item .work.paramatma {
 		color: var(--kg-paramatma);
+	}
+	.cite-item .work.krishna {
+		color: var(--kg-krishna);
 	}
 	.cite-item .work.govinda {
 		color: var(--kg-govinda);

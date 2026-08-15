@@ -32,11 +32,12 @@ const workClass = (w: string): string => {
 	if (w === "तत्त्वसन्दर्भः") return "tattva";
 	if (w === "भागवतसन्दर्भः") return "bhagavat";
 	if (w === "परमात्मसन्दर्भः") return "paramatma";
+	if (w === "कृष्णसन्दर्भः") return "krishna";
 	return "bhagavat";
 };
 
 const title = `Sūtra ${sutra.label} — Vedānta-sūtra Research`;
-const description = `All citations of Vedānta-sūtra (Brahma-sūtra) ${sutra.label} across Tattva-sandarbha, Bhagavat-sandarbha, and Paramatma-sandarbha, with a direct link to Govinda-bhāṣya's commentary on it.`;
+const description = `All citations of Vedānta-sūtra (Brahma-sūtra) ${sutra.label} across Tattva-sandarbha, Bhagavat-sandarbha, Paramatma-sandarbha, and Krishna-sandarbha, with a direct link to Govinda-bhāṣya's commentary on it.`;
 ---
 
 <Layout title={title} description={description} titleIsFullPage={false}>
@@ -215,6 +216,9 @@ const description = `All citations of Vedānta-sūtra (Brahma-sūtra) ${sutra.la
 	}
 	.work-title.paramatma {
 		color: #00897b;
+	}
+	.work-title.krishna {
+		color: #b8860b;
 	}
 	.work-iast {
 		font-weight: 400;
