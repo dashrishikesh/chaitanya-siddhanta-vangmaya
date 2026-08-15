@@ -1,0 +1,255 @@
+---
+import Layout from "../../../../layouts/Layout.astro";
+import { getVedantaSutraGraphData, WORK_IAST, GOVINDA_BHASHYA_WORK, type SutraNode } from "../../../../lib/vedantaSutraGraph";
+
+export async function getStaticPaths() {
+	const { sutras } = await getVedantaSutraGraphData();
+	const sorted = [...sutras].sort((a, b) => a.adhyaya - b.adhyaya || a.pada - b.pada || a.sutra - b.sutra);
+	return sorted.map((s, i) => ({
+		params: { id: `${s.adhyaya}.${s.pada}.${s.sutra}` },
+		props: { sutra: s, prev: sorted[i - 1] ?? null, next: sorted[i + 1] ?? null },
+	}));
+}
+
+interface Props {
+	sutra: SutraNode;
+	prev: SutraNode | null;
+	next: SutraNode | null;
+}
+const { sutra, prev, next } = Astro.props as Props;
+
+const base = import.meta.env.BASE_URL;
+const sandarbhaCites = sutra.cites.filter((c) => c.work !== GOVINDA_BHASHYA_WORK);
+const govindaBhashyaCite = sutra.cites.find((c) => c.work === GOVINDA_BHASHYA_WORK);
+
+const citesByWork = new Map<string, typeof sandarbhaCites>();
+for (const c of sandarbhaCites) {
+	if (!citesByWork.has(c.work)) citesByWork.set(c.work, []);
+	citesByWork.get(c.work)!.push(c);
+}
+
+const workClass = (w: string): string => {
+	if (w === "तत्त्वसन्दर्भः") return "tattva";
+	if (w === "भागवतसन्दर्भः") return "bhagavat";
+	if (w === "परमात्मसन्दर्भः") return "paramatma";
+	return "bhagavat";
+};
+
+const title = `Sūtra ${sutra.label} — Vedānta-sūtra Research`;
+const description = `All citations of Vedānta-sūtra (Brahma-sūtra) ${sutra.label} across Tattva-sandarbha, Bhagavat-sandarbha, and Paramatma-sandarbha, with a direct link to Govinda-bhāṣya's commentary on it.`;
+---
+
+<Layout title={title} description={description} titleIsFullPage={false}>
+	<div class="sutra-page">
+		<p class="breadcrumb">
+			<a href={`${base}vedanta-sutra-graph/`}>&larr; Vedānta-sūtra Citation Graph</a>
+		</p>
+
+		<h1>
+			Sūtra <span class="sutra-num">{sutra.label}</span>
+		</h1>
+		<p class="abbrevs">Cited in the sources as {sutra.abbrevs.join(" / ")}</p>
+
+		<nav class="sutra-nav">
+			{
+				prev ? (
+					<a class="nav-link prev" href={`${base}vedanta-sutra-graph/sutra/${prev.adhyaya}.${prev.pada}.${prev.sutra}/`}>
+						&larr; {prev.label}
+					</a>
+				) : (
+					<span class="nav-link disabled">&larr;</span>
+				)
+			}
+			<span class="nav-mid">Adhyāya {sutra.adhyaya}, Pāda {sutra.pada}</span>
+			{
+				next ? (
+					<a class="nav-link next" href={`${base}vedanta-sutra-graph/sutra/${next.adhyaya}.${next.pada}.${next.sutra}/`}>
+						{next.label} &rarr;
+					</a>
+				) : (
+					<span class="nav-link disabled">&rarr;</span>
+				)
+			}
+		</nav>
+
+		{govindaBhashyaCite && (
+			<div class="gb-callout">
+				<div class="gb-callout-label">Govinda-bhāṣya</div>
+				<p>Baladeva Vidyābhūṣaṇa's own commentary quotes and explains this sūtra directly, at:</p>
+				<p class="gb-heading">{govindaBhashyaCite.heading}</p>
+				<a class="gb-callout-link" href={govindaBhashyaCite.href}>
+					Read the adhikaraṇa &rarr;
+				</a>
+			</div>
+		)}
+
+		<h2 class="section-heading">Citations ({sandarbhaCites.length})</h2>
+		{sandarbhaCites.length === 0 && <p class="hint">No Sandarbha citation text is on record for this sūtra beyond what appears in Govinda-bhāṣya above.</p>}
+
+		{
+			[...citesByWork.entries()].map(([work, cites]) => (
+				<section class="work-group">
+					<h3 class={`work-title ${workClass(work)}`}>
+						{work} <span class="work-iast">({WORK_IAST[work]})</span>
+					</h3>
+					{cites.map((c) => (
+						<div class="citation-card">
+							<div class="citation-head">
+								<a class="citation-heading" href={c.href}>
+									{c.heading}
+								</a>
+								<span class="citation-raw">[{c.raw}]</span>
+							</div>
+							<p class="citation-context">{c.context}</p>
+						</div>
+					))}
+				</section>
+			))
+		}
+	</div>
+</Layout>
+
+<style>
+	.sutra-page {
+		max-width: 860px;
+		margin: 0 auto;
+		padding: 28px 20px 60px;
+	}
+	.breadcrumb {
+		font-size: 0.85rem;
+		margin: 0 0 14px;
+	}
+	h1 {
+		font-size: 1.6rem;
+		margin: 0 0 4px;
+	}
+	.sutra-num {
+		font-variant-numeric: tabular-nums;
+		color: var(--color-heading-accent);
+	}
+	.abbrevs {
+		color: var(--color-text);
+		font-size: 0.88rem;
+		margin: 0 0 18px;
+	}
+
+	.sutra-nav {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		background: #fafafa;
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		padding: 10px 14px;
+		margin-bottom: 22px;
+		font-size: 0.88rem;
+	}
+	.nav-link {
+		white-space: nowrap;
+	}
+	.nav-link.disabled {
+		color: var(--color-border);
+	}
+	.nav-mid {
+		color: var(--color-text);
+		font-size: 0.8rem;
+		text-align: center;
+		flex: 1;
+	}
+
+	.gb-callout {
+		background: color-mix(in srgb, #795548 10%, white);
+		border: 1px solid #795548;
+		border-radius: 10px;
+		padding: 14px 18px;
+		margin-bottom: 26px;
+	}
+	.gb-callout-label {
+		font-weight: 700;
+		color: #795548;
+		font-size: 0.9rem;
+		margin-bottom: 4px;
+	}
+	.gb-callout p {
+		margin: 4px 0;
+		font-size: 0.88rem;
+		color: var(--color-text);
+	}
+	.gb-heading {
+		color: var(--color-heading);
+		font-weight: 600;
+	}
+	.gb-callout-link {
+		display: inline-block;
+		margin-top: 6px;
+		font-weight: 600;
+		color: #795548;
+	}
+
+	.section-heading {
+		font-size: 1.1rem;
+		margin: 0 0 12px;
+		color: var(--color-heading);
+	}
+	.hint {
+		color: var(--color-text);
+		font-size: 0.88rem;
+	}
+
+	.work-group {
+		margin-bottom: 24px;
+	}
+	.work-title {
+		font-size: 0.98rem;
+		margin: 0 0 10px;
+		padding-bottom: 4px;
+		border-bottom: 2px solid currentColor;
+		display: inline-block;
+	}
+	.work-title.tattva {
+		color: var(--color-heading-accent);
+	}
+	.work-title.bhagavat {
+		color: var(--color-vyakhya);
+	}
+	.work-title.paramatma {
+		color: #00897b;
+	}
+	.work-iast {
+		font-weight: 400;
+		font-size: 0.8rem;
+		color: var(--color-text);
+	}
+
+	.citation-card {
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		padding: 12px 16px;
+		margin-bottom: 10px;
+		background: #ffffff;
+	}
+	.citation-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 10px;
+		margin-bottom: 6px;
+		flex-wrap: wrap;
+	}
+	.citation-heading {
+		font-weight: 600;
+		font-size: 0.92rem;
+	}
+	.citation-raw {
+		font-family: ui-monospace, monospace;
+		font-size: 0.72rem;
+		color: var(--color-text);
+	}
+	.citation-context {
+		font-size: 0.92rem;
+		line-height: 1.7;
+		color: var(--color-heading);
+		margin: 0;
+	}
+</style>

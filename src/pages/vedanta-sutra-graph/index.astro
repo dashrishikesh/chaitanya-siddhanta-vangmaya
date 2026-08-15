@@ -1,0 +1,889 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import {
+	getVedantaSutraGraphData,
+	WORK_IAST,
+	WORKS,
+	GOVINDA_BHASHYA_WORK,
+	type SutraNode,
+} from "../../lib/vedantaSutraGraph";
+
+// Lays out a three-column graph: grantha -> anuccheda -> sutra, from data
+// built once in src/lib/vedantaSutraGraph.ts (shared with the per-sutra
+// research page). Regenerates automatically whenever the granthas' content
+// changes.
+
+const { sutras, sections, citationCount } = await getVedantaSutraGraphData();
+
+// The graph's own panel keeps citation context short; full untruncated
+// context lives on each sutra's dedicated research page instead.
+const TRUNCATE_LEN = 220;
+const truncate = (s: string) => (s.length > TRUNCATE_LEN ? s.slice(0, TRUNCATE_LEN) : s);
+for (const s of sutras) {
+	for (const c of s.cites) c.context = truncate(c.context);
+}
+
+// ---------------- layout ----------------
+const X_GRANTHA = 130;
+const X_SECTION = 480;
+const X_SUTRA = 900;
+const X_SUTRA_LABEL = 924;
+const TOP_MARGIN = 64;
+const SECTION_ROW_H = 30;
+const SECTION_GROUP_GAP = 26;
+const SUTRA_ROW_H = 24;
+const SUTRA_BAND_GAP = 30;
+
+const sectionY = new Map<string, number>();
+const sectionGroupBounds = new Map<string, [number, number]>();
+{
+	let y = TOP_MARGIN;
+	for (const work of WORKS) {
+		const group = sections.filter((s) => s.work === work);
+		if (group.length === 0) continue;
+		const yTop = y;
+		for (const s of group) {
+			sectionY.set(s.id, y);
+			y += SECTION_ROW_H;
+		}
+		const yBottom = y - SECTION_ROW_H;
+		sectionGroupBounds.set(work, [yTop, yBottom]);
+		y += SECTION_GROUP_GAP;
+	}
+}
+const sectionColHeight = [...sectionY.values()].length
+	? Math.max(...[...sectionY.values()]) + SECTION_ROW_H
+	: TOP_MARGIN;
+
+const ADHYAYA_LABEL: Record<number, string> = { 1: "Adhyāya 1", 2: "Adhyāya 2", 3: "Adhyāya 3", 4: "Adhyāya 4" };
+const sutrasByAdhyaya = new Map<number, SutraNode[]>();
+for (const s of sutras) {
+	if (!sutrasByAdhyaya.has(s.adhyaya)) sutrasByAdhyaya.set(s.adhyaya, []);
+	sutrasByAdhyaya.get(s.adhyaya)!.push(s);
+}
+const sutraY = new Map<string, number>();
+const bandLabels: { adh: number; yLabel: number; yTop: number; yBottom: number }[] = [];
+{
+	let y = TOP_MARGIN;
+	for (const adh of [...sutrasByAdhyaya.keys()].sort((a, b) => a - b)) {
+		const group = sutrasByAdhyaya.get(adh)!;
+		const yLabel = y;
+		y += 26;
+		const yTop = y;
+		for (const s of group) {
+			sutraY.set(s.id, y);
+			y += SUTRA_ROW_H;
+		}
+		const yBottom = y - SUTRA_ROW_H;
+		bandLabels.push({ adh, yLabel, yTop, yBottom });
+		y += SUTRA_BAND_GAP;
+	}
+}
+const sutraColHeight = [...sutraY.values()].length ? Math.max(...[...sutraY.values()]) + SUTRA_ROW_H : TOP_MARGIN;
+
+const CONTENT_HEIGHT = Math.max(sectionColHeight, sutraColHeight);
+const VIEW_H = CONTENT_HEIGHT + 50;
+const VIEW_W = 1150;
+
+const granthaY = new Map<string, number>();
+for (const work of WORKS) {
+	const bounds = sectionGroupBounds.get(work);
+	granthaY.set(work, bounds ? (bounds[0] + bounds[1]) / 2 + SECTION_ROW_H / 2 - 6 : CONTENT_HEIGHT / 2);
+}
+
+// ---------------- SVG string assembly ----------------
+const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+const edgeParts: string[] = [];
+for (const s of sections) {
+	const gy = granthaY.get(s.work)!;
+	const sy = sectionY.get(s.id)! + SECTION_ROW_H / 2 - 6;
+	const x1 = X_GRANTHA + 58,
+		y1 = gy;
+	const x2 = X_SECTION - 10,
+		y2 = sy;
+	const mx = (x1 + x2) / 2;
+	edgeParts.push(
+		`<path class="edge edge-ga" data-from="g:${esc(s.work)}" data-to="${esc(s.id)}" d="M${x1.toFixed(1)},${y1.toFixed(1)} C${mx.toFixed(1)},${y1.toFixed(1)} ${mx.toFixed(1)},${y2.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}" />`,
+	);
+}
+for (const s of sections) {
+	const sy = sectionY.get(s.id)! + SECTION_ROW_H / 2 - 6;
+	for (const suId of s.sutraIds) {
+		if (!sutraY.has(suId)) continue;
+		const suy = sutraY.get(suId)! + SUTRA_ROW_H / 2 - 6;
+		const x1 = X_SECTION + 150,
+			y1 = sy;
+		const x2 = X_SUTRA - 8,
+			y2 = suy;
+		const mx = (x1 + x2) / 2;
+		const gbCls = s.work === GOVINDA_BHASHYA_WORK ? " edge-as-gb" : "";
+		edgeParts.push(
+			`<path class="edge edge-as${gbCls}" data-from="${esc(s.id)}" data-to="${esc(suId)}" d="M${x1.toFixed(1)},${y1.toFixed(1)} C${mx.toFixed(1)},${y1.toFixed(1)} ${mx.toFixed(1)},${y2.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}" />`,
+		);
+	}
+}
+
+const granthaParts: string[] = [];
+for (const work of WORKS) {
+	if (!granthaY.has(work)) continue;
+	const gy = granthaY.get(work)!;
+	const cnt = sections.filter((s) => s.work === work).reduce((a, s) => a + s.count, 0);
+	const sublabel = work === GOVINDA_BHASHYA_WORK ? `${cnt} sūtra links` : `${cnt} citations`;
+	granthaParts.push(
+		`<g class="node node-grantha" data-id="g:${esc(work)}" data-work="${esc(work)}" tabindex="0">` +
+			`<rect x="${(X_GRANTHA - 58).toFixed(1)}" y="${(gy - 22).toFixed(1)}" width="116" height="44" rx="10" />` +
+			`<text x="${X_GRANTHA.toFixed(1)}" y="${(gy - 2).toFixed(1)}" text-anchor="middle" class="node-label grantha-label">${esc(work)}</text>` +
+			`<text x="${X_GRANTHA.toFixed(1)}" y="${(gy + 15).toFixed(1)}" text-anchor="middle" class="node-sublabel">${sublabel}</text>` +
+			`</g>`,
+	);
+}
+
+const sectionParts: string[] = [];
+for (const s of sections) {
+	const sy = sectionY.get(s.id)!;
+	const cy = sy + SECTION_ROW_H / 2 - 6;
+	// Govinda-bhashya's own adhikarana headings carry a parenthetical
+	// descriptive name ("अधिकरणम् १५ (उभय-लिङ्गाधिकरणम्)") that's too long
+	// for the fixed-width node box -- shown in full in the side panel, but
+	// trimmed to just the number here.
+	const shortLabel = s.heading.replace(/\s*\(.*\)\s*$/, "");
+	sectionParts.push(
+		`<g class="node node-section" data-id="${esc(s.id)}" data-work="${esc(s.work)}" data-sutras="${esc(s.sutraIds.join(" "))}" tabindex="0">` +
+			`<rect x="${(X_SECTION - 10).toFixed(1)}" y="${(sy - 2).toFixed(1)}" width="160" height="22" rx="6" />` +
+			`<text x="${(X_SECTION - 2).toFixed(1)}" y="${(cy + 4).toFixed(1)}" class="node-label section-label">${esc(shortLabel)}</text>` +
+			`<text x="${(X_SECTION + 148).toFixed(1)}" y="${(cy + 4).toFixed(1)}" text-anchor="end" class="node-count">${s.count}</text>` +
+			`</g>`,
+	);
+}
+
+const bandParts: string[] = [];
+for (const b of bandLabels) {
+	bandParts.push(
+		`<rect class="band-bg" x="${(X_SUTRA - 14).toFixed(1)}" y="${(b.yTop - 4).toFixed(1)}" width="230" height="${(b.yBottom - b.yTop + SUTRA_ROW_H + 4).toFixed(1)}" rx="8" />` +
+			`<text x="${(X_SUTRA - 14).toFixed(1)}" y="${(b.yLabel + 14).toFixed(1)}" class="band-label">${ADHYAYA_LABEL[b.adh]}</text>`,
+	);
+}
+
+const sutraParts: string[] = [];
+for (const adh of [...sutrasByAdhyaya.keys()].sort((a, b) => a - b)) {
+	for (const s of sutrasByAdhyaya.get(adh)!) {
+		const sy = sutraY.get(s.id)!;
+		const cy = sy + SUTRA_ROW_H / 2 - 6;
+		// Colored by which Sandarbha(s) cite this sutra; Govinda-bhashya is
+		// excluded from this decision (it links to nearly every sutra, so
+		// folding it in here would wash out the Sandarbha distinction -- it
+		// gets its own ring marker and edge style instead).
+		const sandarbhaCites = s.cites.filter((c) => c.work !== GOVINDA_BHASHYA_WORK);
+		const worksHere = [...new Set(sandarbhaCites.map((c) => c.work))].sort();
+		const hasGovindaBhashya = s.cites.some((c) => c.work === GOVINDA_BHASHYA_WORK);
+		const WORK_CLS: Record<string, string> = {
+			तत्त्वसन्दर्भः: "node-sutra-tattva",
+			भागवतसन्दर्भः: "node-sutra-bhagavat",
+			परमात्मसन्दर्भः: "node-sutra-paramatma",
+		};
+		const cls = worksHere.length > 1 ? "node-sutra-both" : (WORK_CLS[worksHere[0]] ?? "node-sutra-bhagavat");
+		const nCites = sandarbhaCites.length;
+		sutraParts.push(
+			`<g class="node node-sutra ${cls}" data-id="${esc(s.id)}" tabindex="0">` +
+				(hasGovindaBhashya ? `<circle class="gb-ring" cx="${X_SUTRA.toFixed(1)}" cy="${cy.toFixed(1)}" r="8" />` : "") +
+				`<circle cx="${X_SUTRA.toFixed(1)}" cy="${cy.toFixed(1)}" r="5.5" />` +
+				`<text x="${X_SUTRA_LABEL.toFixed(1)}" y="${(cy + 4).toFixed(1)}" class="node-label sutra-label">${esc(s.label)}</text>` +
+				(nCites > 1
+					? `<text x="${(X_SUTRA_LABEL + 62).toFixed(1)}" y="${(cy + 4).toFixed(1)}" class="node-count sutra-cite-count">×${nCites}</text>`
+					: "") +
+				`</g>`,
+		);
+	}
+}
+
+const svgBody =
+	`<g class="edges">${edgeParts.join("\n")}</g>` +
+	`<g class="grantha-nodes">${granthaParts.join("\n")}</g>` +
+	`<text x="${X_GRANTHA.toFixed(1)}" y="34" text-anchor="middle" class="col-header">Work</text>` +
+	`<text x="${(X_SECTION + 60).toFixed(1)}" y="34" text-anchor="middle" class="col-header">Citing section</text>` +
+	`<text x="${(X_SUTRA_LABEL + 90).toFixed(1)}" y="34" text-anchor="middle" class="col-header">Sūtra</text>` +
+	`<g class="section-nodes">${sectionParts.join("\n")}</g>` +
+	`<g class="bands">${bandParts.join("\n")}</g>` +
+	`<g class="sutra-nodes">${sutraParts.join("\n")}</g>`;
+
+const graphData = {
+	sutras: sutras.map((s) => ({ id: s.id, label: s.label, abbrevs: s.abbrevs, cites: s.cites })),
+	sections: sections.map((s) => ({ id: s.id, work: s.work, heading: s.heading, count: s.count, sutraIds: s.sutraIds, href: s.href })),
+};
+const dataJson = JSON.stringify(graphData);
+
+const nCitations = citationCount;
+const nSutras = sutras.length;
+const nSections = sections.length;
+const sutrasPerWork = WORKS.map((w) => ({
+	work: w,
+	count: sutras.filter((s) => s.cites.some((c) => c.work === w)).length,
+}));
+
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout
+	title="Vedānta-sūtra Citation Graph"
+	description="An interactive citation graph connecting the Vedanta-sutras (Brahma-sutras) quoted across Tattva-sandarbha, Bhagavat-sandarbha, Paramatma-sandarbha, and Govinda-bhashya."
+>
+	<div class="kg-page">
+		<h1>वेदान्तसूत्र-ज्ञानालेखः <span class="h1-sub">Vedānta-sūtra Citation Graph</span></h1>
+		<p class="subtitle">
+			A graph of every <b>Vedānta-sūtra</b> (Brahma-sūtra) citation across the three Sandarbhas, plus a direct link from
+			each sūtra to the adhikaraṇa of <b>Govinda-bhāṣya</b> (Baladeva Vidyābhūṣaṇa's own sūtra-by-sūtra commentary) that
+			comments on it. Left column: the citing works. Middle: the sections that cite each sūtra. Right: the sūtras
+			themselves, grouped by adhyāya. Sources cite sūtras under two abbreviations —<b>वे.सू.</b> (Vedānta-sūtra) and
+			<b>ब्र.सू.</b> (Brahma-sūtra) — counted together here.
+		</p>
+
+		<div class="stat-row">
+			<div class="stat-tile"><div class="num">{nCitations}</div><div class="lbl">Total citations</div></div>
+			<div class="stat-tile"><div class="num">{nSutras}</div><div class="lbl">Distinct sūtras</div></div>
+			<div class="stat-tile"><div class="num">{nSections}</div><div class="lbl">Citing sections</div></div>
+			{
+				sutrasPerWork.map((s) => (
+					<div class="stat-tile">
+						<div class="num">{s.count}</div>
+						<div class="lbl">Sūtras in {WORK_IAST[s.work]}</div>
+					</div>
+				))
+			}
+		</div>
+
+		<div class="legend">
+			<span class="item"><span class="swatch" style="background:var(--kg-tattva)"></span> तत्त्वसन्दर्भः</span>
+			<span class="item"><span class="swatch" style="background:var(--kg-bhagavat)"></span> भागवतसन्दर्भः</span>
+			<span class="item"><span class="swatch" style="background:var(--kg-paramatma)"></span> परमात्मसन्दर्भः</span>
+			<span class="item"><span class="swatch" style="background:var(--kg-govinda)"></span> गोविन्दभाष्यम् (sūtra commentary)</span>
+			<span class="item"><span class="swatch line" style="background:var(--color-text)"></span> section &rarr; sūtra</span>
+			<span class="hint">— click a node for details</span>
+			<a class="browse-link" href={`${base}vedanta-sutra-graph/sutra/`}>Browse all sūtras &rarr;</a>
+		</div>
+
+		<div class="layout">
+			<div class="diagram-card">
+				<svg
+					class="kg"
+					viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+					role="img"
+					aria-label="Vedānta-sūtra citation graph connecting works, citing sections, and sūtras"
+					set:html={svgBody}
+				/>
+			</div>
+
+			<div class="panel" id="panel">
+				<h2 id="panel-title">Overview</h2>
+				<div id="panel-body">
+					<p class="hint">
+						Click (or tab to and press Enter/Space on) any work, section, or sūtra node — its connections will
+						highlight and details will appear here. Click the node again, or press Escape, to clear the selection.
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<p class="method-note">
+			Method: scans the site content of the three Sandarbha works for <code>[वे.सू. …]</code> / <code>[ब्र.सू. …]</code>
+			citation markers at build time. A sūtra cited more than once from the same section shows as a single connecting
+			line (with a ×N count beside it); no count means it was cited once. Govinda-bhāṣya doesn't cite sūtras by number —
+			it quotes each sūtra's own text — so its links come from matching each sūtra's text against the live page content
+			instead, grounding the connection in what's actually published rather than a re-derived guess.
+		</p>
+
+		<p style="text-align:center;">
+			<a href={`${base}granthas/`}>&larr; Back to Granthas</a>
+		</p>
+	</div>
+</Layout>
+
+<script type="application/json" id="kg-data" is:inline set:html={dataJson} />
+<script>
+	interface Cite {
+		work: string;
+		heading: string;
+		raw: string;
+		context: string;
+		href?: string;
+	}
+	interface SutraNode {
+		id: string;
+		label: string;
+		abbrevs: string[];
+		cites: Cite[];
+	}
+	interface SectionNode {
+		id: string;
+		work: string;
+		heading: string;
+		count: number;
+		sutraIds: string[];
+		href?: string;
+	}
+	interface GraphData {
+		sutras: SutraNode[];
+		sections: SectionNode[];
+	}
+
+	const dataEl = document.getElementById("kg-data");
+	const data: GraphData = JSON.parse(dataEl?.textContent ?? "{}");
+	const sutraById = new Map(data.sutras.map((s) => [s.id, s]));
+	const sectionById = new Map(data.sections.map((s) => [s.id, s]));
+
+	const svg = document.querySelector("svg.kg");
+	const edges = Array.from(svg?.querySelectorAll<SVGElement>(".edge") ?? []);
+	const nodes = Array.from(svg?.querySelectorAll<SVGElement>(".node") ?? []);
+	const panelTitle = document.getElementById("panel-title")!;
+	const panelBody = document.getElementById("panel-body")!;
+
+	const escapeHtml = (s: string) =>
+		String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+
+	function clear() {
+		svg?.classList.remove("has-active");
+		nodes.forEach((n) => n.classList.remove("is-active"));
+		edges.forEach((e) => e.classList.remove("is-active"));
+		panelTitle.textContent = "Overview";
+		panelBody.innerHTML =
+			'<p class="hint">Click (or tab to and press Enter/Space on) any work, section, or sūtra node — its connections will highlight and details will appear here.</p>';
+	}
+
+	function activateSet(nodeIds: Set<string>, edgeMatch: (e: SVGElement) => boolean) {
+		svg?.classList.add("has-active");
+		nodes.forEach((n) => {
+			if (nodeIds.has(n.getAttribute("data-id") ?? "")) n.classList.add("is-active");
+		});
+		edges.forEach((e) => {
+			if (edgeMatch(e)) e.classList.add("is-active");
+		});
+	}
+
+	const WORK_CLASS: Record<string, string> = {
+		तत्त्वसन्दर्भः: "tattva",
+		भागवतसन्दर्भः: "bhagavat",
+		परमात्मसन्दर्भः: "paramatma",
+		गोविन्दभाष्यम्: "govinda",
+	};
+	const workClass = (w: string) => WORK_CLASS[w] ?? "bhagavat";
+
+	function citeListHtml(cites: Cite[]) {
+		return cites
+			.map((c) => {
+				const linkOrRaw = c.href
+					? `<a class="gb-link" href="${escapeHtml(c.href)}">View page &rarr;</a>`
+					: c.raw
+						? `<div class="raw">[${escapeHtml(c.raw)}]</div>`
+						: "";
+				return (
+					`<div class="cite-item"><div class="work ${workClass(c.work)}">${escapeHtml(c.work)}</div>` +
+					`<div class="heading">${escapeHtml(c.heading || "")}</div>` +
+					`<div class="ctx">${escapeHtml(c.context)}</div>` +
+					linkOrRaw +
+					`</div>`
+				);
+			})
+			.join("");
+	}
+
+	function onSutra(id: string) {
+		const s = sutraById.get(id);
+		if (!s) return;
+		const connectedSections = new Set<string>();
+		edges.forEach((e) => {
+			if (e.classList.contains("edge-as") && e.getAttribute("data-to") === id) {
+				connectedSections.add(e.getAttribute("data-from") ?? "");
+			}
+		});
+		const connectedGranthas = new Set<string>();
+		connectedSections.forEach((sid) => {
+			const sec = sectionById.get(sid);
+			if (sec) connectedGranthas.add("g:" + sec.work);
+		});
+		const nodeIds = new Set<string>([id, ...connectedSections, ...connectedGranthas]);
+		activateSet(
+			nodeIds,
+			(e) =>
+				(e.classList.contains("edge-as") && e.getAttribute("data-to") === id) ||
+				(e.classList.contains("edge-ga") && connectedSections.has(e.getAttribute("data-to") ?? "")),
+		);
+		panelTitle.textContent = `Sūtra ${s.label} (${s.abbrevs.join(" / ")})`;
+		const detailHref = `${import.meta.env.BASE_URL}vedanta-sutra-graph/sutra/${id.slice(2)}/`;
+		panelBody.innerHTML =
+			`<p><a class="gb-link" href="${escapeHtml(detailHref)}">Full research page for this sūtra &rarr;</a></p>` +
+			citeListHtml(s.cites);
+	}
+
+	function onSection(id: string) {
+		const sec = sectionById.get(id);
+		if (!sec) return;
+		const nodeIds = new Set<string>([id, "g:" + sec.work, ...sec.sutraIds]);
+		activateSet(
+			nodeIds,
+			(e) =>
+				(e.classList.contains("edge-as") && e.getAttribute("data-from") === id) ||
+				(e.classList.contains("edge-ga") && e.getAttribute("data-to") === id),
+		);
+		const relevantSutras = data.sutras.filter((s) => sec.sutraIds.includes(s.id));
+		panelTitle.textContent = `${sec.heading} (${sec.work})`;
+		const linkHtml = sec.href ? `<p><a class="gb-link" href="${escapeHtml(sec.href)}">View page &rarr;</a></p>` : "";
+		panelBody.innerHTML =
+			linkHtml +
+			`<p class="hint">${sec.count} citation${sec.count === 1 ? "" : "s"}, ${relevantSutras.length} distinct sūtra${relevantSutras.length === 1 ? "" : "s"}.</p>` +
+			relevantSutras
+				.map((s) => {
+					const ctx = s.cites.find((c) => c.heading === sec.heading)?.context ?? "";
+					return `<div class="cite-item"><div class="heading">Sūtra ${escapeHtml(s.label)}</div><div class="ctx">${escapeHtml(ctx)}</div></div>`;
+				})
+				.join("");
+	}
+
+	function onGrantha(id: string) {
+		const work = id.slice(2);
+		const mySections = data.sections.filter((s) => s.work === work);
+		const nodeIds = new Set<string>([id]);
+		const sutraSet = new Set<string>();
+		mySections.forEach((s) => {
+			nodeIds.add(s.id);
+			s.sutraIds.forEach((x) => {
+				nodeIds.add(x);
+				sutraSet.add(x);
+			});
+		});
+		activateSet(
+			nodeIds,
+			(e) =>
+				(e.classList.contains("edge-ga") && e.getAttribute("data-from") === id) ||
+				(e.classList.contains("edge-as") && nodeIds.has(e.getAttribute("data-from") ?? "")),
+		);
+		panelTitle.textContent = work;
+		panelBody.innerHTML =
+			`<p class="hint">${mySections.length} citing section${mySections.length === 1 ? "" : "s"}, ${sutraSet.size} distinct sūtra${sutraSet.size === 1 ? "" : "s"} cited.</p>` +
+			mySections
+				.map(
+					(s) =>
+						`<div class="cite-item"><div class="heading">${escapeHtml(s.heading)}</div><div class="ctx">${s.count} citation${s.count === 1 ? "" : "s"}, ${s.sutraIds.length} sūtra${s.sutraIds.length === 1 ? "" : "s"}</div></div>`,
+				)
+				.join("");
+	}
+
+	function activate(node: SVGElement) {
+		const id = node.getAttribute("data-id") ?? "";
+		if (node.classList.contains("node-sutra")) onSutra(id);
+		else if (node.classList.contains("node-section")) onSection(id);
+		else if (node.classList.contains("node-grantha")) onGrantha(id);
+	}
+
+	// Click/tap to select (not hover) -- this is a research tool meant to be
+	// read closely, and hover doesn't work on touch devices or hold up well
+	// to a reader who wants to keep a node's detail panel open while they
+	// look elsewhere at the diagram. Clicking a node toggles it; clicking
+	// the same node again, clicking empty diagram background, or pressing
+	// Escape clears the selection.
+	let selectedNode: SVGElement | null = null;
+
+	function selectNode(node: SVGElement) {
+		if (selectedNode === node) {
+			selectedNode.setAttribute("aria-pressed", "false");
+			selectedNode = null;
+			clear();
+			return;
+		}
+		if (selectedNode) selectedNode.setAttribute("aria-pressed", "false");
+		selectedNode = node;
+		node.setAttribute("aria-pressed", "true");
+		activate(node);
+	}
+
+	function deselect() {
+		if (!selectedNode) return;
+		selectedNode.setAttribute("aria-pressed", "false");
+		selectedNode = null;
+		clear();
+	}
+
+	nodes.forEach((n) => {
+		n.setAttribute("role", "button");
+		n.setAttribute("aria-pressed", "false");
+		n.addEventListener("click", () => selectNode(n));
+		n.addEventListener("keydown", (e) => {
+			if (e.key === "Enter" || e.key === " ") {
+				e.preventDefault();
+				selectNode(n);
+			}
+		});
+	});
+
+	svg?.addEventListener("click", (e) => {
+		const target = e.target as Element;
+		if (!target.closest(".node")) deselect();
+	});
+
+	document.addEventListener("keydown", (e) => {
+		if (e.key === "Escape") deselect();
+	});
+</script>
+
+<style>
+	.kg-page {
+		max-width: 1760px;
+		margin: 0 auto;
+		padding: 30px 24px 60px;
+	}
+	.kg-page h1 {
+		font-size: 1.5rem;
+		margin: 0 0 8px;
+	}
+	.h1-sub {
+		display: block;
+		font-size: 0.95rem;
+		font-weight: 400;
+		color: var(--color-text);
+		margin-top: 2px;
+	}
+	.subtitle {
+		color: var(--color-text);
+		font-size: 0.92rem;
+		max-width: 72ch;
+		line-height: 1.6;
+		margin: 0 0 18px;
+	}
+	.subtitle b {
+		color: var(--color-heading);
+	}
+
+	:root {
+		--kg-tattva: var(--color-heading-accent);
+		--kg-bhagavat: var(--color-vyakhya);
+		--kg-paramatma: #00897b;
+		--kg-govinda: #795548;
+	}
+
+	.stat-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		margin-bottom: 18px;
+	}
+	.stat-tile {
+		background: #fafafa;
+		border: 1px solid var(--color-border);
+		border-radius: 8px;
+		padding: 10px 16px;
+		min-width: 118px;
+	}
+	.stat-tile .num {
+		font-size: 1.3rem;
+		font-weight: 700;
+		color: var(--color-heading);
+	}
+	.stat-tile .lbl {
+		font-size: 0.72rem;
+		color: var(--color-text);
+		margin-top: 2px;
+	}
+
+	.legend {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 16px;
+		align-items: center;
+		font-size: 0.82rem;
+		color: var(--color-text);
+		margin-bottom: 14px;
+	}
+	.legend .item {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+	}
+	.legend .swatch {
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+		display: inline-block;
+	}
+	.legend .swatch.line {
+		width: 18px;
+		height: 3px;
+		border-radius: 2px;
+	}
+	.browse-link {
+		margin-left: auto;
+		font-weight: 600;
+	}
+
+	.layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 300px;
+		gap: 18px;
+		align-items: start;
+	}
+	@media (max-width: 860px) {
+		.layout {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.diagram-card {
+		background: #ffffff;
+		border: 1px solid var(--color-border);
+		border-radius: 10px;
+		padding: 8px;
+		overflow-x: auto;
+	}
+	svg.kg {
+		display: block;
+		width: 100%;
+		height: auto;
+		min-width: 720px;
+	}
+
+	svg.kg :global(.node) {
+		cursor: pointer;
+	}
+	svg.kg :global(.node:focus-visible) {
+		outline: 2px solid var(--color-link);
+		outline-offset: 2px;
+	}
+	svg.kg :global(.node rect),
+	svg.kg :global(.node circle) {
+		fill: #ffffff;
+		stroke: var(--color-text);
+		stroke-width: 1.2;
+		transition:
+			opacity 0.15s ease,
+			stroke-width 0.15s ease;
+	}
+	svg.kg :global(.node-grantha rect) {
+		stroke-width: 1.6;
+	}
+	svg.kg :global(.node-grantha[data-work="तत्त्वसन्दर्भः"] rect) {
+		stroke: var(--kg-tattva);
+		fill: color-mix(in srgb, var(--kg-tattva) 12%, white);
+	}
+	svg.kg :global(.node-grantha[data-work="भागवतसन्दर्भः"] rect) {
+		stroke: var(--kg-bhagavat);
+		fill: color-mix(in srgb, var(--kg-bhagavat) 12%, white);
+	}
+	svg.kg :global(.node-grantha[data-work="परमात्मसन्दर्भः"] rect) {
+		stroke: var(--kg-paramatma);
+		fill: color-mix(in srgb, var(--kg-paramatma) 12%, white);
+	}
+	svg.kg :global(.node-grantha[data-work="गोविन्दभाष्यम्"] rect) {
+		stroke: var(--kg-govinda);
+		fill: color-mix(in srgb, var(--kg-govinda) 12%, white);
+	}
+
+	svg.kg :global(.node-section rect) {
+		stroke: var(--color-border);
+		fill: #ffffff;
+	}
+	svg.kg :global(.node-section[data-work="तत्त्वसन्दर्भः"] rect) {
+		stroke: var(--kg-tattva);
+	}
+	svg.kg :global(.node-section[data-work="भागवतसन्दर्भः"] rect) {
+		stroke: var(--kg-bhagavat);
+	}
+	svg.kg :global(.node-section[data-work="परमात्मसन्दर्भः"] rect) {
+		stroke: var(--kg-paramatma);
+	}
+	svg.kg :global(.node-section[data-work="गोविन्दभाष्यम्"] rect) {
+		stroke: var(--kg-govinda);
+		stroke-dasharray: 3 2;
+	}
+
+	svg.kg :global(.node-sutra-tattva circle) {
+		fill: var(--kg-tattva);
+		stroke: var(--kg-tattva);
+	}
+	svg.kg :global(.node-sutra-bhagavat circle) {
+		fill: var(--kg-bhagavat);
+		stroke: var(--kg-bhagavat);
+	}
+	svg.kg :global(.node-sutra-paramatma circle) {
+		fill: var(--kg-paramatma);
+		stroke: var(--kg-paramatma);
+	}
+	svg.kg :global(.node-sutra-both circle) {
+		fill: var(--color-text);
+		stroke: var(--color-text);
+	}
+	svg.kg :global(.gb-ring) {
+		fill: none;
+		stroke: var(--kg-govinda);
+		stroke-width: 1.2;
+		stroke-dasharray: 2 1.5;
+		opacity: 0.75;
+	}
+
+	svg.kg :global(.node-label) {
+		font-size: 12px;
+		fill: var(--color-heading);
+		font-family: var(--font-body);
+	}
+	svg.kg :global(.grantha-label) {
+		font-size: 13px;
+		font-weight: 700;
+	}
+	svg.kg :global(.node-sublabel) {
+		font-size: 10px;
+		fill: var(--color-text);
+	}
+	svg.kg :global(.section-label) {
+		font-size: 11.5px;
+	}
+	svg.kg :global(.sutra-label) {
+		font-size: 11.5px;
+	}
+	svg.kg :global(.node-count) {
+		font-size: 10px;
+		fill: var(--color-text);
+	}
+	svg.kg :global(.sutra-cite-count) {
+		font-size: 9.5px;
+		fill: var(--color-text);
+	}
+	svg.kg :global(.col-header) {
+		font-size: 12px;
+		fill: var(--color-text);
+		font-weight: 600;
+	}
+
+	svg.kg :global(.band-bg) {
+		fill: #f4f4f2;
+	}
+	svg.kg :global(.band-label) {
+		font-size: 10.5px;
+		fill: var(--color-text);
+		font-weight: 600;
+	}
+
+	svg.kg :global(.edge) {
+		fill: none;
+		stroke-width: 1.3;
+		transition:
+			opacity 0.15s ease,
+			stroke-width 0.15s ease;
+	}
+	svg.kg :global(.edge-ga[data-from="g:तत्त्वसन्दर्भः"]) {
+		stroke: var(--kg-tattva);
+		opacity: 0.45;
+	}
+	svg.kg :global(.edge-ga[data-from="g:भागवतसन्दर्भः"]) {
+		stroke: var(--kg-bhagavat);
+		opacity: 0.32;
+	}
+	svg.kg :global(.edge-ga[data-from="g:परमात्मसन्दर्भः"]) {
+		stroke: var(--kg-paramatma);
+		opacity: 0.32;
+	}
+	svg.kg :global(.edge-ga[data-from="g:गोविन्दभाष्यम्"]) {
+		stroke: var(--kg-govinda);
+		opacity: 0.28;
+		stroke-dasharray: 3 2;
+	}
+	svg.kg :global(.edge-as) {
+		stroke: var(--color-text);
+		opacity: 0.28;
+	}
+	svg.kg :global(.edge-as-gb) {
+		stroke: var(--kg-govinda);
+		opacity: 0.22;
+		stroke-dasharray: 3 2;
+	}
+
+	svg.kg.has-active :global(.node) {
+		opacity: 0.28;
+	}
+	svg.kg.has-active :global(.edge) {
+		opacity: 0.05;
+	}
+	svg.kg.has-active :global(.node.is-active),
+	svg.kg.has-active :global(.edge.is-active) {
+		opacity: 1;
+	}
+	svg.kg.has-active :global(.node.is-active rect),
+	svg.kg.has-active :global(.node.is-active circle) {
+		stroke-width: 2.2;
+	}
+	svg.kg.has-active :global(.edge.is-active) {
+		stroke-width: 2;
+	}
+
+	.panel {
+		background: #ffffff;
+		border: 1px solid var(--color-border);
+		border-radius: 10px;
+		padding: 16px;
+		font-size: 0.85rem;
+		color: var(--color-text);
+		position: sticky;
+		top: 18px;
+		min-height: 220px;
+	}
+	.panel h2 {
+		font-size: 0.95rem;
+		color: var(--color-heading);
+		margin: 0 0 8px;
+	}
+	.panel .hint {
+		color: var(--color-text);
+		font-size: 0.8rem;
+	}
+	.cite-item {
+		border-top: 1px solid var(--color-border);
+		padding: 8px 0;
+	}
+	.cite-item:first-child {
+		border-top: none;
+		padding-top: 0;
+	}
+	.cite-item .work {
+		font-weight: 700;
+		font-size: 0.78rem;
+	}
+	.cite-item .work.tattva {
+		color: var(--kg-tattva);
+	}
+	.cite-item .work.bhagavat {
+		color: var(--kg-bhagavat);
+	}
+	.cite-item .work.paramatma {
+		color: var(--kg-paramatma);
+	}
+	.cite-item .work.govinda {
+		color: var(--kg-govinda);
+	}
+	.cite-item .heading {
+		color: var(--color-heading);
+		font-size: 0.82rem;
+		margin: 1px 0 4px;
+	}
+	.cite-item .ctx {
+		font-size: 0.78rem;
+		line-height: 1.5;
+	}
+	.cite-item .raw {
+		display: inline-block;
+		margin-top: 4px;
+		font-size: 0.72rem;
+		color: var(--color-text);
+		font-family: ui-monospace, monospace;
+	}
+	.gb-link {
+		display: inline-block;
+		margin-top: 4px;
+		font-size: 0.78rem;
+		font-weight: 600;
+		color: var(--kg-govinda);
+	}
+
+	.method-note {
+		margin-top: 22px;
+		font-size: 0.78rem;
+		color: var(--color-text);
+		max-width: 76ch;
+		line-height: 1.6;
+	}
+</style>

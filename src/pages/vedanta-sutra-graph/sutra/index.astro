@@ -1,0 +1,131 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import { getVedantaSutraGraphData, GOVINDA_BHASHYA_WORK } from "../../../lib/vedantaSutraGraph";
+
+const { sutras } = await getVedantaSutraGraphData();
+const sorted = [...sutras].sort((a, b) => a.adhyaya - b.adhyaya || a.pada - b.pada || a.sutra - b.sutra);
+
+const byAdhyaya = new Map<number, typeof sorted>();
+for (const s of sorted) {
+	if (!byAdhyaya.has(s.adhyaya)) byAdhyaya.set(s.adhyaya, []);
+	byAdhyaya.get(s.adhyaya)!.push(s);
+}
+
+const workClass = (w: string): string => {
+	if (w === "तत्त्वसन्दर्भः") return "tattva";
+	if (w === "भागवतसन्दर्भः") return "bhagavat";
+	if (w === "परमात्मसन्दर्भः") return "paramatma";
+	return "bhagavat";
+};
+
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout
+	title="Browse Vedānta-sūtras"
+	description="Browse every Vedānta-sūtra (Brahma-sūtra) cited across Tattva-sandarbha, Bhagavat-sandarbha, and Paramatma-sandarbha, each linking to a full research page."
+>
+	<div class="index-page">
+		<p class="breadcrumb"><a href={`${base}vedanta-sutra-graph/`}>&larr; Vedānta-sūtra Citation Graph</a></p>
+		<h1>Browse Vedānta-sūtras</h1>
+		<p class="subtitle">{sorted.length} sūtras cited across the three Sandarbhas. Click one for its full citation list and, where available, a link into Govinda-bhāṣya's commentary.</p>
+
+		{
+			[...byAdhyaya.entries()].map(([adh, group]) => (
+				<section class="adhyaya-group">
+					<h2>Adhyāya {adh}</h2>
+					<div class="sutra-grid">
+						{group.map((s) => {
+							const works = [...new Set(s.cites.filter((c) => c.work !== GOVINDA_BHASHYA_WORK).map((c) => c.work))];
+							const hasGb = s.cites.some((c) => c.work === GOVINDA_BHASHYA_WORK);
+							return (
+								<a class="sutra-chip" href={`${base}vedanta-sutra-graph/sutra/${s.adhyaya}.${s.pada}.${s.sutra}/`}>
+									<span class="sutra-chip-label">{s.label}</span>
+									<span class="sutra-chip-dots">
+										{works.map((w) => (
+											<span class={`dot ${workClass(w)}`} />
+										))}
+										{hasGb && <span class="dot govinda" />}
+									</span>
+								</a>
+							);
+						})}
+					</div>
+				</section>
+			))
+		}
+	</div>
+</Layout>
+
+<style>
+	.index-page {
+		max-width: 900px;
+		margin: 0 auto;
+		padding: 28px 20px 60px;
+	}
+	.breadcrumb {
+		font-size: 0.85rem;
+		margin: 0 0 14px;
+	}
+	h1 {
+		font-size: 1.5rem;
+		margin: 0 0 6px;
+	}
+	.subtitle {
+		color: var(--color-text);
+		font-size: 0.9rem;
+		max-width: 68ch;
+		line-height: 1.5;
+		margin: 0 0 22px;
+	}
+	.adhyaya-group {
+		margin-bottom: 26px;
+	}
+	.adhyaya-group h2 {
+		font-size: 1.05rem;
+		color: var(--color-heading);
+		margin: 0 0 10px;
+	}
+	.sutra-grid {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+	.sutra-chip {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		border: 1px solid var(--color-border);
+		border-radius: 6px;
+		padding: 5px 10px;
+		font-size: 0.85rem;
+		font-variant-numeric: tabular-nums;
+		background: #fafafa;
+		color: var(--color-heading);
+	}
+	.sutra-chip:hover {
+		border-color: var(--color-link);
+	}
+	.sutra-chip-dots {
+		display: inline-flex;
+		gap: 2px;
+	}
+	.dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		display: inline-block;
+	}
+	.dot.tattva {
+		background: var(--color-heading-accent);
+	}
+	.dot.bhagavat {
+		background: var(--color-vyakhya);
+	}
+	.dot.paramatma {
+		background: #00897b;
+	}
+	.dot.govinda {
+		background: #795548;
+	}
+</style>
