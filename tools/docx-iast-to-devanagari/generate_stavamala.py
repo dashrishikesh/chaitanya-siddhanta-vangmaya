@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-"""Extracts Śrī Rūpa Gosvāmī's Stavamālā (a ~45-poem stotra anthology) from
+"""SUPERSEDED by generate_stavamala_from_itx.py -- kept for reference only,
+not run against the live site anymore. The PDF's own text layer silently
+drops word-spacing at some page-internal line-wrap points (e.g. anuccheda
+4 of chaitanyAShTakam 1), which this pdftotext-based extraction has no way
+to detect or recover; the ITX/ITRANS typesetting source that generated the
+PDF doesn't have that defect and is also missing the 4-verse
+maNgalAcharaNa this pipeline never captured (extraction here starts at the
+PDF's own "Chaitanyashtakam 1" bookmark).
+
+Extracts Śrī Rūpa Gosvāmī's Stavamālā (a ~45-poem stotra anthology) from
 the source PDF into a single site markdown file, one '## ' section per
 titled poem (matching the site's srikrishna-lilastava.md convention).
 
