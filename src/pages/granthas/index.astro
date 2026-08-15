@@ -39,10 +39,13 @@ const groups: Group[] = [...workByCategory.entries()]
 	.sort(([a], [b]) => CATEGORY_ORDER.indexOf(a) - CATEGORY_ORDER.indexOf(b))
 	.map(([category, works]) => {
 		const [heading, cat] = CATEGORIES[category] ?? [category, 1];
+		const sortedWorks = [...works].sort(
+			(a, b) => (a.data.sequence ?? 0) - (b.data.sequence ?? 0),
+		);
 		return {
 			heading,
 			cat,
-			books: works.map((entry) => ({
+			books: sortedWorks.map((entry) => ({
 				name: entry.data.work.devanagari,
 				author: entry.data.author,
 				href: `${base}granthas/${entry.data.workSlug}/`,

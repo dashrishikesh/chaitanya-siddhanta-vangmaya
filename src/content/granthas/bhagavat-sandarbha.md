@@ -18,7 +18,7 @@ corpusName:
     to be confused with the corpus-level name.
 workSlug: "bhagavat-sandarbha"
 partOf: "shat-sandarbha"
-sequence: 1
+sequence: 2
 author: "जीव गोस्वामी"
 authorGroup: "shad-goswami"
 goswami: "jiva"
