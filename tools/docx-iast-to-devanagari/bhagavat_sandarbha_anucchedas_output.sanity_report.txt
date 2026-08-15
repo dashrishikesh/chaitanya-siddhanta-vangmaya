@@ -1,0 +1,15 @@
+Input:  bhagavat_sandarbha_anucchedas.docx
+Output: bhagavat_sandarbha_anucchedas_output.docx
+
+Input paragraph count:  386
+Output paragraph count: 386
+Paragraph count match: YES
+
+Converted paragraphs:    314
+Skipped (non-Sanskrit):  72
+Mixed English+Sanskrit (left unconverted, needs a human): 0 (see (none found))
+Engine disagreements:    193 (see bhagavat_sandarbha_anucchedas_output.review_diffs.csv)
+Mixed-formatting paras:  see bhagavat_sandarbha_anucchedas_output.review_formatting.csv
+
+Paragraphs with Devanagari + stray Latin letters mixed together: 0
+  (worth a manual spot-check -- may be legitimate citations/abbreviations, or leftover conversion gaps)

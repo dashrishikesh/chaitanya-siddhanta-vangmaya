@@ -1,0 +1,15 @@
+Input:  bhagavat_sandarbha_sarva_samvadini.docx
+Output: bhagavat_sandarbha_sarva_samvadini_output.docx
+
+Input paragraph count:  2674
+Output paragraph count: 2674
+Paragraph count match: YES
+
+Converted paragraphs:    2667
+Skipped (non-Sanskrit):  7
+Mixed English+Sanskrit (left unconverted, needs a human): 0 (see (none found))
+Engine disagreements:    1638 (see bhagavat_sandarbha_sarva_samvadini_output.review_diffs.csv)
+Mixed-formatting paras:  see bhagavat_sandarbha_sarva_samvadini_output.review_formatting.csv
+
+Paragraphs with Devanagari + stray Latin letters mixed together: 0
+  (worth a manual spot-check -- may be legitimate citations/abbreviations, or leftover conversion gaps)
