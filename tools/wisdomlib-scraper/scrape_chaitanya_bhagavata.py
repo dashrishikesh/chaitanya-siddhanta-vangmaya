@@ -57,6 +57,13 @@ USER_AGENT = (
 )
 
 VERSE_LABEL_RE = re.compile(r"^Verse\s+(\d+)\.(\d+)\.(\d+)$")
+# Book 2's chapter 2 (and possibly others) labels its verses "Verse C.V"
+# (chapter.verse, no book prefix) instead of the standard "Verse B.C.V" --
+# verified directly against the live site (wisdomlib's own chapter-2 TOC
+# page, doc1104163.html), not assumed. The book number has to come from
+# context (which book's TOC page this was found on) since the label
+# itself doesn't carry it.
+VERSE_LABEL_SHORT_RE = re.compile(r"^Verse\s+(\d+)\.(\d+)$")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -146,18 +153,26 @@ class Scraper:
     def discover_verse_urls(self, book_num: int, book_url: str) -> list[tuple[int, int, int, str]]:
         """Returns [(book, chapter, verse, verse_url), ...] listed on one
         book's TOC page. Only picks up links whose visible text is
-        exactly "Verse B.C.V" -- chapter-introduction links and anything
-        else on the page are deliberately not verses and are skipped."""
+        exactly "Verse B.C.V" (or the "Verse C.V" short form some
+        chapters use -- see VERSE_LABEL_SHORT_RE) -- chapter-introduction
+        links and anything else on the page are deliberately not verses
+        and are skipped."""
         soup = self.get(book_url)
         if soup is None:
             self.review_log.append({"url": book_url, "reason": "book TOC page fetch failed"})
             return []
         verses = []
         for a in soup.find_all("a", href=True):
-            m = VERSE_LABEL_RE.match(a.get_text(strip=True))
-            if not m:
-                continue
-            book, chapter, verse = (int(x) for x in m.groups())
+            text = a.get_text(strip=True)
+            m = VERSE_LABEL_RE.match(text)
+            if m:
+                book, chapter, verse = (int(x) for x in m.groups())
+            else:
+                m = VERSE_LABEL_SHORT_RE.match(text)
+                if not m:
+                    continue
+                book = book_num
+                chapter, verse = (int(x) for x in m.groups())
             verses.append((book, chapter, verse, urljoin(BASE_URL, a["href"])))
         log.info("book %d: found %d verse links", book_num, len(verses))
         return verses
